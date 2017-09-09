@@ -1,0 +1,34 @@
+2.4.0 (Streamer)
+================
+
+	Nature       : Feature
+	Requested by : Quazar Research
+
+	Status       : Pending
+	Created on   : 2017-09-09 by KC
+	Closed on    : ---
+
+Description
+-----------
+
+The SMU is to stream voltmeter data at a specified frequency. This requires following features to be implemented.
+
+	1) Dynamically change baudrate to suit data stream.
+
+		-- CHANGE_BAUD
+
+	2) Start recording
+
+		-- START_REC : Starts recording of timed data into internal buffer.
+
+	3) Transfer recorded data chunks to computer
+
+		-- REC_SIZE : Queries number of available data points in buffer
+
+		-- REC_DATA : Transfers requested number of data points to driver.
+
+	5) Stop recording
+
+		-- STOP_REC : Stops recording gracefully.
+
+		-- KEEP_ALIVE : Stops recording if keep alive packets are not received, i.e. driver is dead.
