@@ -1,0 +1,42 @@
+BIN_FOLDER = /usr/bin
+
+CC = $(BIN_FOLDER)/avr-gcc
+AR = $(BIN_FOLDER)/avr-ar crv
+OBJCOPY = $(BIN_FOLDER)/avr-objcopy
+OBJDUMP = $(BIN_FOLDER)/avr-objdump
+AVRDUDE = $(BIN_FOLDER)/avrdude
+RM = rm -rfv
+
+FLAGS = \
+	-Wall -O3 \
+	-fno-threadsafe-statics -fdata-sections -ffunction-sections -fno-exceptions \
+	-mmcu=atmega644 \
+	-fverbose-asm -g -Wa,-a=${basename $<}.s
+
+CFLAGS = $(FLAGS) -c
+MFLAGS = $(FLAGS) -M
+LFLAGS = -mmcu=atmega644 -Wl,--gc-sections,-Map,app.map,-u,vfprintf
+
+INCLUDE = \
+	-I $(top_builddir)/code/stl \
+	-I $(top_builddir)/code/avr \
+	-I $(top_builddir)/code/utils \
+	-I $(top_builddir)/code/sys \
+	-I $(top_builddir)/code/app
+
+LIBS = \
+	-lsys -L $(top_builddir)/code/sys/src \
+	-lavr -L $(top_builddir)/code/avr/src \
+	-lutils -L $(top_builddir)/code/utils/src \
+	-lprintf_flt -lm
+
+LIBDEPS = \
+	$(top_builddir)/code/sys/src/libsys.a \
+	$(top_builddir)/code/utils/src/libutils.a \
+	$(top_builddir)/code/avr/src/libavr.a
+
+%.dep: %.cxx
+	$(CC) $(MFLAGS) $(INCLUDE) $< > $@
+
+%.o: %.cxx
+	$(CC) $(CFLAGS) $(INCLUDE) $< -o $@

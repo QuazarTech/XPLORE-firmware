@@ -1,0 +1,132 @@
+------------------------------------------------------------------------
+r40 | (no author) | 2014-03-29 18:57:25 +0530 (Sat, 29 Mar 2014) | 6 lines
+
+** To improves 50Hz rejection capability, the AD7734 is configured to run at 500Hz with average of 10 successive readings constructing one logical reading from the ADC.
+
+** The response of IDN command sends hardware and firmware version information as additional fields. These might be useful in implementing backward compatibility in the software.
+
+-- Krish
+
+------------------------------------------------------------------------
+r39 | (no author) | 2014-03-28 15:07:06 +0530 (Fri, 28 Mar 2014) | 1 line
+
+50Hz removal devel branch created -- Krish
+------------------------------------------------------------------------
+r33 | (no author) | 2014-03-12 11:15:23 +0530 (Wed, 12 Mar 2014) | 1 line
+
+Reintegrate merge from board_R3 devel branch -- Krish
+------------------------------------------------------------------------
+r27 | (no author) | 2013-12-13 20:57:41 +0530 (Fri, 13 Dec 2013) | 1 line
+
+Merged from development branch CSCM and QP41 -- Krish
+------------------------------------------------------------------------
+r20 | (no author) | 2013-09-25 16:46:12 +0530 (Wed, 25 Sep 2013) | 1 line
+
+Function show_banner updated. Now it shows the welcome strings from flash (progmem). -- Krish
+------------------------------------------------------------------------
+r18 | (no author) | 2013-09-25 16:22:02 +0530 (Wed, 25 Sep 2013) | 1 line
+
+Firmware version is now displayed on startup screen. -- Krish
+------------------------------------------------------------------------
+r17 | (no author) | 2013-09-25 14:39:05 +0530 (Wed, 25 Sep 2013) | 1 line
+
+Folder structure re-arranged. -- Krish
+------------------------------------------------------------------------
+r15 | (no author) | 2013-09-21 13:59:15 +0530 (Sat, 21 Sep 2013) | 4 lines
+
+** Project updated for Atmega644.
+
+-- Krish
+
+------------------------------------------------------------------------
+r14 | (no author) | 2013-09-09 14:14:08 +0530 (Mon, 09 Sep 2013) | 1 line
+
+LNMIIT-1.1 tagged. -- Krish.
+------------------------------------------------------------------------
+r13 | (no author) | 2013-08-29 19:26:14 +0530 (Thu, 29 Aug 2013) | 1 line
+
+ChangeLog updated. -- Krish.
+------------------------------------------------------------------------
+r12 | (no author) | 2013-08-29 19:25:36 +0530 (Thu, 29 Aug 2013) | 8 lines
+
+** DAC gain resistor has been set to 15.76k using 10k + 5.76k precision resistors.
+
+** Current sense full-scale voltage has been changed to 1 volt using precision resistors.
+
+** Remote I-V measurements, as shown in Qrius window, are also displayed on LCD.
+
+-- Krish.
+
+------------------------------------------------------------------------
+r11 | (no author) | 2013-05-28 20:51:19 +0530 (Tue, 28 May 2013) | 2 lines
+
+** The automatic range selection logic in resistance measurement module has been slightly improved. Now the range is increased by 1 if the measured voltage is more than the full-scale, and is decreased by 1 if it is less than 9% of the full-scale. This prevents uncontrolled switching between two consecutive ranges at the range boundary.
+
+------------------------------------------------------------------------
+r10 | (no author) | 2013-05-27 18:54:23 +0530 (Mon, 27 May 2013) | 10 lines
+
+** Power-on source state has been set to voltage source.
+
+** Resistance measurement with auto-ranging has been added. The ranges have been set to 10E, 100E, 1k, 10k, 100k, 1M, and 10M.
+
+** A new library named "pgmspace" has been added to STL. This has been used to retrieve data declared with PROGMEM attribute. It seems that all local static const variables are stored in the RAM instead of flash. And due to non-uniform address space, they cannot be accessed from other routines if the are stored in flash. The pgmspace library offers pgm_read to fetch data from flash. It is a template function. So all data types are supported.
+
+** All locat static const variables have been put to flash using PROGMEM attribute.
+
+** A flash version of SPI read and write, viz. read_P and write_P, have been implemented.
+
+------------------------------------------------------------------------
+r9 | (no author) | 2013-05-18 21:23:15 +0530 (Sat, 18 May 2013) | 12 lines
+
+** Over voltage range of AD7734 has been activated.
+
+** Calibration round off has been implemented through round() function.
+
+** Display format is improved.
+
+** Calibration over specification has been implemented in Calibration.cxx file. A 2% overhead is now possible.
+
+** Initial CS, VS, CM, VM ranges have been respectively set to 1mA, 10V, 1mA, 10V.
+
+** Calls to displaySourceMode and displaySourceSetPoint functions have been commented out due to flash space problem.
+
+------------------------------------------------------------------------
+r8 | (no author) | 2013-05-16 20:20:23 +0530 (Thu, 16 May 2013) | 8 lines
+
+** Proper front panel LED functionality has been added. Now the VS and CS LEDs switch according the selected source mode. The VM LED blinks every time a new reading is shown in the LCD.
+
+** Voltage source module has been activated, and __NO_VS__ macro has been removed.
+
+** DAC gain resistance has been changed to 16K. This ensures sufficient headroom for current and voltage sources.
+
+** Default calibration tables in CS and VS have been modified.
+
+------------------------------------------------------------------------
+r7 | (no author) | 2013-05-13 21:32:54 +0530 (Mon, 13 May 2013) | 6 lines
+
+** The moving average filter has been replaced with a simple averaging filter.
+
+** The AD7734 driver and its derived classes in CM and VM have been debugged.
+
+** Now, the LCD is refreshed at every 128 internal measurements, which takes roughly a second.
+
+------------------------------------------------------------------------
+r6 | (no author) | 2013-05-13 14:20:20 +0530 (Mon, 13 May 2013) | 8 lines
+
+** All unnecessary classes have been deleted.
+
+** A new class, named AD5542 (16-bit DAC), has been added.
+
+** A new class, named LEDDisplay, has been added. It will control the front LEDs according to the selected source mode.
+
+** Four new commands, viz. CS_loadDefaultCalibration, VS_loadDefaultCalibration, CM_loadDefaultCalibration, VM_loadDefaultCalibration, have been added.
+
+------------------------------------------------------------------------
+r5 | (no author) | 2013-05-09 19:01:19 +0530 (Thu, 09 May 2013) | 1 line
+
+New C++ based code added.
+------------------------------------------------------------------------
+r4 | (no author) | 2013-05-09 18:59:44 +0530 (Thu, 09 May 2013) | 1 line
+
+The old code has been transferred to branch/Joshua.
+------------------------------------------------------------------------
