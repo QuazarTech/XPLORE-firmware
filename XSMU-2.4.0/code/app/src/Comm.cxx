@@ -145,7 +145,7 @@ void Comm::checkReceiveQueue (void)
 	processReceivedData (rx->data(), rx->size());
 }
 
-void Comm::processReceivedData (const void* data, uint16_t size)
+void Comm::processReceivedDataftp  (const void* data, uint16_t size)
 {
 	const uint8_t* src = reinterpret_cast<const uint8_t*> (data);
 
@@ -217,7 +217,9 @@ void Comm::interpret (const void* data, uint16_t size)
 		
 		&Comm::VM2_loadDefaultCalibrationCB,  //40
 		&Comm::VM_setTerminalCB,              //41                   
-		&Comm::VM_getTerminalCB,              //42                   
+		&Comm::VM_getTerminalCB,              //42
+                
+                &Comm::changeBaudCB,                  //43
 	};
 
 	if (size < sizeof (CommPacket))
@@ -695,6 +697,20 @@ void Comm::VM_getTerminalCB (const void* data, uint16_t size)
 	// 	reinterpret_cast<const CommRequest_VM_GetTerminal*> (data);
 
 	do_callback (new (&callbackObject_) CommCB_VM_GetTerminal ());
+}
+
+/******************************************************************/
+
+void Comm::changeBaudCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_changeBaud))
+		return;
+
+	const CommRequest_changeBaud* req =
+		reinterpret_cast <const CommRequest_changeBaud*> (data);
+
+	do_callback (new (&callbackObject_)
+		CommCB_changeBaud (req->baudRate()));
 }
 
 /******************************************************************/
@@ -1319,5 +1335,20 @@ void Comm::transmit_VM_getTerminal (Comm_VM_Terminal terminal)
 	qp4_.transmitter().free_packet (response);
 }
 
+/******************************************************************/
+
+void Comm::transmit_changeBaud (uint16_t baudRate)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_changeBaud));
+
+	new (response->body())
+		CommResponse_changeBaud (baudRate);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
 /******************************************************************/
 /******************************************************************/

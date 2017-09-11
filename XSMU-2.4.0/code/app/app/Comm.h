@@ -59,6 +59,8 @@ enum Comm_Opcode
 	COMM_OPCODE_VM2_LOAD_DEFAULT_CALIBRATION,      //40   
 	COMM_OPCODE_VM_SET_TERMINAL,                   //41
 	COMM_OPCODE_VM_GET_TERMINAL,                   //42
+        
+	COMM_OPCODE_CHANGE_BAUD,                       //43
 
 };
 
@@ -1540,6 +1542,42 @@ private:
 /******************************************************************/
 /******************************************************************/
 
+class CommPacket_changeBaud : public CommPacket
+{
+protected:
+	CommPacket_changeBaud (uint16_t baudRate) :
+		CommPacket (COMM_OPCODE_CHANGE_BAUD)
+		{}
+};
+
+class CommRequest_changeBaud : public CommPacket_changeBaud
+{
+private:
+	CommRequest_changeBaud (void);
+
+public:
+	uint16_t baudRate (void) const {return std::ntoh (baudRate_);}
+
+private:
+	uint16_t baudRate_;
+	uint16_t reserve_;
+};
+
+class CommResponse_changeBaud : public CommPacket_changeBaud
+{
+public:
+	CommResponse_changeBaud (uint16_t baudRate) :
+		baudRate_ (std::hton (baudRate))
+	{}
+
+private:
+	uint16_t baudRate_;
+	uint16_t reserve_;
+};
+
+/******************************************************************/
+/******************************************************************/
+
 enum Comm_CallbackCode
 {
 	COMM_CBCODE_NOP,                             //00                        
@@ -1588,7 +1626,9 @@ enum Comm_CallbackCode
 
 	COMM_CBCODE_VM2_LOAD_DEFAULT_CALIBRATION,    //40       
 	COMM_CBCODE_VM_SET_TERMINAL,                 //41     
-	COMM_CBCODE_VM_GET_TERMINAL,                 //42    
+	COMM_CBCODE_VM_GET_TERMINAL,                 //42
+
+	COMM_CBCODE_CHANGE_BAUD,                     //43
 };
 
 /******************************************************************/
@@ -2177,6 +2217,24 @@ public:
 /******************************************************************/
 /******************************************************************/
 
+class CommCB_changeBaud : public CommCB
+{
+public:
+	CommCB_changeBaud (uint16_t baudRate) :
+		CommCB (COMM_CBCODE_CHANGE_BAUD),
+		baudRate_ (baudRate)
+	{}
+
+public:
+	uint16_t baudRate (void) const { return baudRate_; }
+
+private:
+	uint16_t baudRate_;
+};
+
+/******************************************************************/
+/******************************************************************/
+
 union CommCB_Union
 {
 	char gen0[sizeof (CommCB)];
@@ -2230,6 +2288,8 @@ union CommCB_Union
 
 	char vm7[sizeof (CommCB_VM_SetTerminal)];
 	char vm8[sizeof (CommCB_VM_GetTerminal)];
+	
+	char gen4[sizeof (CommCB_changeBaud)];
 };
 
 /******************************************************************/
@@ -2334,9 +2394,13 @@ public:
 	void transmit_VM2_read (float reading);
 	void transmit_VM2_loadDefaultCalibration (void);
 
-	void transmit_VM_setTerminal	(Comm_VM_Terminal terminal);
-	void transmit_VM_getTerminal	(Comm_VM_Terminal terminal);
+	void transmit_VM_setTerminal (Comm_VM_Terminal terminal);
+	void transmit_VM_getTerminal (Comm_VM_Terminal terminal);
 
+	/********************************/
+	
+	void transmit_changeBaud (uint16_t baudRate);
+	
 	/********************************/
 
 private:
@@ -2391,20 +2455,22 @@ private:
 
 	void RM_readAutoscaleCB (const void* data, uint16_t size);
 
-	void SystemConfig_GetCB (const void* data, uint16_t size);
-	void SystemConfig_SetCB (const void* data, uint16_t size);
-	void SystemConfig_SaveCB (const void* data, uint16_t size);
+	void SystemConfig_GetCB         (const void* data, uint16_t size);
+	void SystemConfig_SetCB         (const void* data, uint16_t size);
+	void SystemConfig_SaveCB        (const void* data, uint16_t size);
 	void SystemConfig_LoadDefaultCB (const void* data, uint16_t size);
 
-	void VM2_setRangeCB           (const void* data, uint16_t size);
-	void VM2_getCalibrationCB     (const void* data, uint16_t size);
-	void VM2_setCalibrationCB     (const void* data, uint16_t size);
-	void VM2_saveCalibrationCB    (const void* data, uint16_t size);
-	void VM2_readCB               (const void* data, uint16_t size);
+	void VM2_setRangeCB               (const void* data, uint16_t size);
+	void VM2_getCalibrationCB         (const void* data, uint16_t size);
+	void VM2_setCalibrationCB         (const void* data, uint16_t size);
+	void VM2_saveCalibrationCB        (const void* data, uint16_t size);
+	void VM2_readCB                   (const void* data, uint16_t size);
 	void VM2_loadDefaultCalibrationCB (const void* data, uint16_t size);
 
-	void VM_setTerminalCB 		(const void* data, uint16_t size);
-	void VM_getTerminalCB 		(const void* data, uint16_t size);
+	void VM_setTerminalCB (const void* data, uint16_t size);
+	void VM_getTerminalCB (const void* data, uint16_t size);
+	
+	void changeBaudCB (const void* data, uint16_t size);
 
 private:
 	void transmit (const QP4_Packet* packet);
