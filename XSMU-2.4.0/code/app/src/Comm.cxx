@@ -145,7 +145,7 @@ void Comm::checkReceiveQueue (void)
 	processReceivedData (rx->data(), rx->size());
 }
 
-void Comm::processReceivedDataftp  (const void* data, uint16_t size)
+void Comm::processReceivedData  (const void* data, uint16_t size)
 {
 	const uint8_t* src = reinterpret_cast<const uint8_t*> (data);
 

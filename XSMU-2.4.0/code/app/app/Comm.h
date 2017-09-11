@@ -1545,9 +1545,9 @@ private:
 class CommPacket_changeBaud : public CommPacket
 {
 protected:
-	CommPacket_changeBaud (uint16_t baudRate) :
+	CommPacket_changeBaud (void) :
 		CommPacket (COMM_OPCODE_CHANGE_BAUD)
-		{}
+	{}
 };
 
 class CommRequest_changeBaud : public CommPacket_changeBaud
@@ -1572,7 +1572,6 @@ public:
 
 private:
 	uint16_t baudRate_;
-	uint16_t reserve_;
 };
 
 /******************************************************************/

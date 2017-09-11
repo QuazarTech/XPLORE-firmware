@@ -1,3 +1,37 @@
+####################################################
+#
+#  ^^ Means updated
+#  ++ Means added
+#
+####################################################
+
+### 2.4.0
+
+2017-09-11  Gitansh Kataria  <gitansh@quazartech.com>
+
+* Feature: A command to change baud-rate is added.
+
+* Comm.h/Comm.cxx:
+
+	^^ COMM_OPCODE
+		++ COMM_OPCODE_CHANGE_BAUD
+
+	++ class CommPacket_ChangeBaud
+		++ class CommRequest_ChangeBaud
+		++ class CommResponse_ChangeBaud
+
+	^^ COMM_CBCODE
+		++ COMM_CBCODE_CHANGE_BAUD
+
+	++ class CommCB_ChangeBaud
+
+	^^ union CommCB_Union
+		++ char gen4 [sizeof (CommCB_ChangeBaud)]
+
+	^^ class Comm : public Applet
+		++ void changeBaud_CB (void*, uint16_t)
+		++ void transmit_changeBaud (uint16_t)
+
 ------------------------------------------------------------------------
 r40 | (no author) | 2014-03-29 18:57:25 +0530 (Sat, 29 Mar 2014) | 6 lines
 
