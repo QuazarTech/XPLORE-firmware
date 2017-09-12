@@ -55,6 +55,8 @@
   ```
 Found a missing dependency? Open an issue here : https://github.com/QuazarTech/XPLORE-firmware/issues
 
+### Installation
+
 To burn the firmware on the respective XPLORE module :
 
  1. Navigate to `XPLORE-firmware/ModuleName/` (eg, `XPLORE-firmware/XSMU-2.4.0/`)
