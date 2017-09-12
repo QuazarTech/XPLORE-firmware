@@ -1556,22 +1556,21 @@ private:
 	CommRequest_changeBaud (void);
 
 public:
-	uint16_t baudRate (void) const {return std::ntoh (baudRate_);}
+	uint32_t baudRate (void) const {return std::ntoh (baudRate_);}
 
 private:
-	uint16_t baudRate_;
-	uint16_t reserve_;
+	uint32_t baudRate_;
 };
 
 class CommResponse_changeBaud : public CommPacket_changeBaud
 {
 public:
-	CommResponse_changeBaud (uint16_t baudRate) :
+	CommResponse_changeBaud (uint32_t baudRate) :
 		baudRate_ (std::hton (baudRate))
 	{}
 
 private:
-	uint16_t baudRate_;
+	uint32_t baudRate_;
 };
 
 /******************************************************************/
@@ -2225,10 +2224,10 @@ public:
 	{}
 
 public:
-	uint16_t baudRate (void) const { return baudRate_; }
+	uint32_t baudRate (void) const { return baudRate_; }
 
 private:
-	uint16_t baudRate_;
+	uint32_t baudRate_;
 };
 
 /******************************************************************/
@@ -2398,7 +2397,7 @@ public:
 
 	/********************************/
 	
-	void transmit_changeBaud (uint16_t baudRate);
+	void transmit_changeBaud (uint32_t baudRate);
 	
 	/********************************/
 

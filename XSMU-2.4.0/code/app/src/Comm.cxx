@@ -1337,7 +1337,7 @@ void Comm::transmit_VM_getTerminal (Comm_VM_Terminal terminal)
 
 /******************************************************************/
 
-void Comm::transmit_changeBaud (uint16_t baudRate)
+void Comm::transmit_changeBaud (uint32_t baudRate)
 {
 	QP4_Packet* response =
 		qp4_.transmitter().alloc_packet (
