@@ -349,11 +349,28 @@ void Application::VS_saveCalibrationCB (const CommCB* oCB)
 
 void Application::VS_setVoltageCB (const CommCB* oCB)
 {
+	_delay_ms(500);
+	freezeLocalDisplay();
+	lcd.cursorAt (0, 0);
+	lcd << "    Entering    ";
+
+	lcd.cursorAt (1, 0);
+	lcd << "  setVoltageCB  ";
+	
+	_delay_ms(1000);
+	
 	const CommCB_VS_SetVoltage* o =
 		reinterpret_cast<const CommCB_VS_SetVoltage*> (oCB);
 
 	modVS.setVoltage (o->voltage());
 	appComm.transmit_VS_setVoltage (modVS.voltage());
+	
+	freezeLocalDisplay();
+	lcd.cursorAt (0, 0);
+	lcd << "  Transmitted   ";
+
+	lcd.cursorAt (1, 0);
+	lcd << "   setVoltage   ";
 
 // 	freezeLocalDisplay();
 // 	displaySourceSetpoint (modCS.active(), modCS.current(), modCS.range(),
