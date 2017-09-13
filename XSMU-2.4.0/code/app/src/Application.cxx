@@ -150,7 +150,7 @@ void Application::appCommCB (const CommCB* oCB)
 
 		&Application::VM_setTerminalCB,
 		&Application::VM_getTerminalCB,
-		
+
 		&Application::changeBaudCB,
 	};
 
@@ -713,9 +713,9 @@ void Application::changeBaudCB (const CommCB* oCB)
 {
 	const CommCB_changeBaud* o =
 		reinterpret_cast<const CommCB_changeBaud*> (oCB);
-	
+
 	baudRate = o->baudRate();
-	appComm.transmit_changeBaud (baudRate);	
+	appComm.transmit_changeBaud (baudRate);
 }
 
 /*************************************************************************/

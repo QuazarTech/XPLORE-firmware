@@ -171,55 +171,55 @@ void Comm::interpret (const void* data, uint16_t size)
 
 	static const cb_t cbs[] PROGMEM =
 	{
-		&Comm::nopCB,                         //00                      
-		&Comm::identityCB,                    //01                            
-		&Comm::syncCB,                        //02                           
-		&Comm::setSourceModeCB,               //03                         
-		&Comm::CS_setRangeCB,                 //04                   
-		&Comm::CS_getCalibrationCB,           //05                      
-		&Comm::CS_verifyCalibrationCB,        //06                        
-		&Comm::CS_setCalibrationCB,           //07                       
-		&Comm::CS_saveCalibrationCB,          //08                      
+		&Comm::nopCB,                         //00
+		&Comm::identityCB,                    //01
+		&Comm::syncCB,                        //02
+		&Comm::setSourceModeCB,               //03
+		&Comm::CS_setRangeCB,                 //04
+		&Comm::CS_getCalibrationCB,           //05
+		&Comm::CS_verifyCalibrationCB,        //06
+		&Comm::CS_setCalibrationCB,           //07
+		&Comm::CS_saveCalibrationCB,          //08
 		&Comm::CS_setCurrentCB,               //09
 
-		&Comm::VS_setRangeCB,                 //10                    
-		&Comm::VS_getCalibrationCB,           //11                       
-		&Comm::VS_verifyCalibrationCB,        //12                             
-		&Comm::VS_setCalibrationCB,           //13                         
-		&Comm::VS_saveCalibrationCB,          //14                      
-		&Comm::VS_setVoltageCB,               //15                    
-		&Comm::CM_setRangeCB,                 //16                    
-		&Comm::CM_getCalibrationCB,           //17                       
-		&Comm::CM_setCalibrationCB,           //18                      
-		&Comm::CM_saveCalibrationCB,          //19                       
-		
-		&Comm::CM_readCB,                     //20                
-		&Comm::VM_setRangeCB,                 //21                   
-		&Comm::VM_getCalibrationCB,           //22                      
-		&Comm::VM_setCalibrationCB,           //23                      
-		&Comm::VM_saveCalibrationCB,          //24                     
-		&Comm::VM_readCB,                     //25               
-		&Comm::CS_loadDefaultCalibrationCB,   //26                  
-		&Comm::VS_loadDefaultCalibrationCB,   //27                  
-		&Comm::CM_loadDefaultCalibrationCB,   //28                        
-		&Comm::VM_loadDefaultCalibrationCB,   //29                        
-		
-		&Comm::RM_readAutoscaleCB,            //30               
-		&Comm::SystemConfig_GetCB,            //31               
-		&Comm::SystemConfig_SetCB,            //32               
-		&Comm::SystemConfig_SaveCB,           //33               
-		&Comm::SystemConfig_LoadDefaultCB,    //34                  
-		&Comm::VM2_setRangeCB,                //35           
-		&Comm::VM2_getCalibrationCB,          //36                
-		&Comm::VM2_setCalibrationCB,          //37               
-		&Comm::VM2_saveCalibrationCB,         //38            
-		&Comm::VM2_readCB,                    //39            
-		
+		&Comm::VS_setRangeCB,                 //10
+		&Comm::VS_getCalibrationCB,           //11
+		&Comm::VS_verifyCalibrationCB,        //12
+		&Comm::VS_setCalibrationCB,           //13
+		&Comm::VS_saveCalibrationCB,          //14
+		&Comm::VS_setVoltageCB,               //15
+		&Comm::CM_setRangeCB,                 //16
+		&Comm::CM_getCalibrationCB,           //17
+		&Comm::CM_setCalibrationCB,           //18
+		&Comm::CM_saveCalibrationCB,          //19
+
+		&Comm::CM_readCB,                     //20
+		&Comm::VM_setRangeCB,                 //21
+		&Comm::VM_getCalibrationCB,           //22
+		&Comm::VM_setCalibrationCB,           //23
+		&Comm::VM_saveCalibrationCB,          //24
+		&Comm::VM_readCB,                     //25
+		&Comm::CS_loadDefaultCalibrationCB,   //26
+		&Comm::VS_loadDefaultCalibrationCB,   //27
+		&Comm::CM_loadDefaultCalibrationCB,   //28
+		&Comm::VM_loadDefaultCalibrationCB,   //29
+
+		&Comm::RM_readAutoscaleCB,            //30
+		&Comm::SystemConfig_GetCB,            //31
+		&Comm::SystemConfig_SetCB,            //32
+		&Comm::SystemConfig_SaveCB,           //33
+		&Comm::SystemConfig_LoadDefaultCB,    //34
+		&Comm::VM2_setRangeCB,                //35
+		&Comm::VM2_getCalibrationCB,          //36
+		&Comm::VM2_setCalibrationCB,          //37
+		&Comm::VM2_saveCalibrationCB,         //38
+		&Comm::VM2_readCB,                    //39
+
 		&Comm::VM2_loadDefaultCalibrationCB,  //40
-		&Comm::VM_setTerminalCB,              //41                   
+		&Comm::VM_setTerminalCB,              //41
 		&Comm::VM_getTerminalCB,              //42
-                
-                &Comm::changeBaudCB,                  //43
+
+		&Comm::changeBaudCB,                  //43
 	};
 
 	if (size < sizeof (CommPacket))
