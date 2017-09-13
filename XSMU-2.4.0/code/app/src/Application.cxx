@@ -149,7 +149,9 @@ void Application::appCommCB (const CommCB* oCB)
 		&Application::VM2_loadDefaultCalibrationCB,
 
 		&Application::VM_setTerminalCB,
-		&Application::VM_getTerminalCB,		
+		&Application::VM_getTerminalCB,
+		
+		&Application::changeBaudCB,
 	};
 
 	if (oCB->code() < sizeof (cbs) / sizeof (cbs[0]))
@@ -702,6 +704,17 @@ void Application::VM_getTerminalCB (const CommCB* oCB)
 	// 	reinterpret_cast<const CommCB_VM_GetTerminal*> (oCB);
 
 	appComm.transmit_VM_getTerminal (toComm_VM_Terminal (modVM.getTerminal()));
+}
+
+/*************************************************************************/
+
+void Application::changeBaudCB (const CommCB* oCB)
+{
+	const CommCB_changeBaud* o =
+		reinterpret_cast<const CommCB_changeBaud*> (oCB);
+
+	baudRate = o->baudRate();
+	appComm.transmit_changeBaud (baudRate);
 }
 
 /*************************************************************************/

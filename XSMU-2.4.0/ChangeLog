@@ -7,6 +7,18 @@
 
 ### 2.4.0
 
+2017-09-13  Gitansh Kataria  <gitansh@quazartech.com>
+
+* Feature: A command to change baud-rate is added.
+
+* Application.h/Application.cxx:
+
+	++ uint32_t baudRate
+
+	++ void changeBaudCB     (const CommCB* oCB);
+
+### 2.4.0
+
 2017-09-11  Gitansh Kataria  <gitansh@quazartech.com>
 
 * Feature: A command to change baud-rate is added.

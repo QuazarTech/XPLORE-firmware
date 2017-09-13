@@ -19,6 +19,9 @@ public:
 	virtual void check (void);
 
 private:
+	uint32_t baudRate;
+
+private:
 	Application (void);
 	void show_banner (void);
 
@@ -83,8 +86,10 @@ private:
 	void VM2_readCB                (const CommCB* oCB);
 	void VM2_loadDefaultCalibrationCB (const CommCB* oCB);
 
-	void VM_setTerminalCB            (const CommCB* oCB);
-	void VM_getTerminalCB            (const CommCB* oCB);
+	void VM_setTerminalCB (const CommCB* oCB);
+	void VM_getTerminalCB (const CommCB* oCB);
+	
+	void changeBaudCB     (const CommCB* oCB);
 	
 private:
 	void CS_activate (void);
