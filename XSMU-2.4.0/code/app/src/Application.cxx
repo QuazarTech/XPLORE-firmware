@@ -710,11 +710,27 @@ void Application::VM_getTerminalCB (const CommCB* oCB)
 
 void Application::changeBaudCB (const CommCB* oCB)
 {
+	freezeLocalDisplay();
+	lcd.cursorAt (0, 0);
+	lcd << "    Entering    ";
+
+	lcd.cursorAt (1, 0);
+	lcd << "  changeBaudCB  ";
+
+
 	const CommCB_changeBaud* o =
 		reinterpret_cast<const CommCB_changeBaud*> (oCB);
-
+	
 	baudRate = o->baudRate();
 	appComm.transmit_changeBaud (baudRate);
+	
+	
+	freezeLocalDisplay();
+	lcd.cursorAt (0, 0);
+	lcd << "  Transmitted   ";
+
+	lcd.cursorAt (1, 0);
+	lcd << "   changeBaud   ";
 }
 
 /*************************************************************************/
