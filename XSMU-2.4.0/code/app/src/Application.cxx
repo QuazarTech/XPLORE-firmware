@@ -710,13 +710,15 @@ void Application::VM_getTerminalCB (const CommCB* oCB)
 
 void Application::changeBaudCB (const CommCB* oCB)
 {
+	_delay_ms(500);
 	freezeLocalDisplay();
 	lcd.cursorAt (0, 0);
 	lcd << "    Entering    ";
 
 	lcd.cursorAt (1, 0);
 	lcd << "  changeBaudCB  ";
-
+	
+	_delay_ms(1000);
 
 	const CommCB_changeBaud* o =
 		reinterpret_cast<const CommCB_changeBaud*> (oCB);
