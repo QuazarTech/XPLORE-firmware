@@ -714,8 +714,8 @@ void Application::changeBaudCB (const CommCB* oCB)
 	const CommCB_changeBaud* o =
 		reinterpret_cast<const CommCB_changeBaud*> (oCB);
 
-	baudRate = o->baudRate();
-	appComm.transmit_changeBaud (baudRate);
+	_baudRate = o->baudRate();
+	appComm.transmit_changeBaud (_baudRate);
 }
 
 /*************************************************************************/
