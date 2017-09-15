@@ -323,13 +323,9 @@ void VM::setTerminal (VM_Terminal terminal)
 	terminal_ = terminal;
 }
 
-/*********************************************************************
-
-void VM::setTerminal (VM_Terminal terminal)
-{
-	iox_.writeOutputPortRegister (
-		(iox_.readOutputPortRegister() & 0b11101111) |
-			(uint16_t) terminal << 4);
-}
-
-/*********************************************************************/
+// void VM::setTerminal (VM_Terminal terminal)
+// {
+// 	iox_.writeOutputPortRegister (
+// 		(iox_.readOutputPortRegister() & 0b11101111) |
+// 			(uint16_t) terminal << 4);
+// }

@@ -12,54 +12,54 @@
 
 enum Comm_Opcode
 {
-	COMM_OPCODE_NOP,                               //00                    
-	COMM_OPCODE_IDN,                               //01        
-	COMM_OPCODE_SYNC,                              //02 
+	COMM_OPCODE_NOP,                               //00
+	COMM_OPCODE_IDN,                               //01
+	COMM_OPCODE_KEEP_ALIVE,                        //02
 	COMM_OPCODE_SET_SOURCE_MODE,                   //03
 	COMM_OPCODE_CS_SET_RANGE,                      //04
-	COMM_OPCODE_CS_GET_CALIBRATION,                //05 
+	COMM_OPCODE_CS_GET_CALIBRATION,                //05
 	COMM_OPCODE_CS_VERIFY_CALIBRATION,             //06
-	COMM_OPCODE_CS_SET_CALIBRATION,                //07 
-	COMM_OPCODE_CS_SAVE_CALIBRATION,               //08 
-	COMM_OPCODE_CS_SET_CURRENT,                    //09 
+	COMM_OPCODE_CS_SET_CALIBRATION,                //07
+	COMM_OPCODE_CS_SAVE_CALIBRATION,               //08
+	COMM_OPCODE_CS_SET_CURRENT,                    //09
 
-	COMM_OPCODE_VS_SET_RANGE,                      //10    
-	COMM_OPCODE_VS_GET_CALIBRATION,                //11  
-	COMM_OPCODE_VS_VERIFY_CALIBRATION,             //12      
-	COMM_OPCODE_VS_SET_CALIBRATION,                //13   
-	COMM_OPCODE_VS_SAVE_CALIBRATION,               //14    
+	COMM_OPCODE_VS_SET_RANGE,                      //10
+	COMM_OPCODE_VS_GET_CALIBRATION,                //11
+	COMM_OPCODE_VS_VERIFY_CALIBRATION,             //12
+	COMM_OPCODE_VS_SET_CALIBRATION,                //13
+	COMM_OPCODE_VS_SAVE_CALIBRATION,               //14
 	COMM_OPCODE_VS_SET_VOLTAGE,                    //15
-    COMM_OPCODE_CM_SET_RANGE,                      //16       
-	COMM_OPCODE_CM_GET_CALIBRATION,                //17            
-	COMM_OPCODE_CM_SET_CALIBRATION,                //18            
-	COMM_OPCODE_CM_SAVE_CALIBRATION,               //19             
+    COMM_OPCODE_CM_SET_RANGE,                      //16
+	COMM_OPCODE_CM_GET_CALIBRATION,                //17
+	COMM_OPCODE_CM_SET_CALIBRATION,                //18
+	COMM_OPCODE_CM_SAVE_CALIBRATION,               //19
 
-	COMM_OPCODE_CM_READ,                           //20 
-	COMM_OPCODE_VM_SET_RANGE,                      //21    
-	COMM_OPCODE_VM_GET_CALIBRATION,                //22          
-	COMM_OPCODE_VM_SET_CALIBRATION,                //23          
-	COMM_OPCODE_VM_SAVE_CALIBRATION,               //24           
+	COMM_OPCODE_CM_READ,                           //20
+	COMM_OPCODE_VM_SET_RANGE,                      //21
+	COMM_OPCODE_VM_GET_CALIBRATION,                //22
+	COMM_OPCODE_VM_SET_CALIBRATION,                //23
+	COMM_OPCODE_VM_SAVE_CALIBRATION,               //24
 	COMM_OPCODE_VM_READ,                           //25
-	COMM_OPCODE_CS_LOAD_DEFAULT_CALIBRATION,       //26           
-	COMM_OPCODE_VS_LOAD_DEFAULT_CALIBRATION,       //27    
-	COMM_OPCODE_CM_LOAD_DEFAULT_CALIBRATION,       //28    
-	COMM_OPCODE_VM_LOAD_DEFAULT_CALIBRATION,       //29    
+	COMM_OPCODE_CS_LOAD_DEFAULT_CALIBRATION,       //26
+	COMM_OPCODE_VS_LOAD_DEFAULT_CALIBRATION,       //27
+	COMM_OPCODE_CM_LOAD_DEFAULT_CALIBRATION,       //28
+	COMM_OPCODE_VM_LOAD_DEFAULT_CALIBRATION,       //29
 
 	COMM_OPCODE_RM_READ_AUTOSCALE,                 //30
-	COMM_OPCODE_SYSTEM_CONFIG_GET,                 //31     
-	COMM_OPCODE_SYSTEM_CONFIG_SET,                 //32       
-	COMM_OPCODE_SYSTEM_CONFIG_SAVE,                //33    
-	COMM_OPCODE_SYSTEM_CONFIG_LOAD_DEFAULT,        //34        
-	COMM_OPCODE_VM2_SET_RANGE,                     //35   
-	COMM_OPCODE_VM2_GET_CALIBRATION,               //36   
-	COMM_OPCODE_VM2_SET_CALIBRATION,               //37  
-	COMM_OPCODE_VM2_SAVE_CALIBRATION,              //38  
-	COMM_OPCODE_VM2_READ,                          //39  
+	COMM_OPCODE_SYSTEM_CONFIG_GET,                 //31
+	COMM_OPCODE_SYSTEM_CONFIG_SET,                 //32
+	COMM_OPCODE_SYSTEM_CONFIG_SAVE,                //33
+	COMM_OPCODE_SYSTEM_CONFIG_LOAD_DEFAULT,        //34
+	COMM_OPCODE_VM2_SET_RANGE,                     //35
+	COMM_OPCODE_VM2_GET_CALIBRATION,               //36
+	COMM_OPCODE_VM2_SET_CALIBRATION,               //37
+	COMM_OPCODE_VM2_SAVE_CALIBRATION,              //38
+	COMM_OPCODE_VM2_READ,                          //39
 
-	COMM_OPCODE_VM2_LOAD_DEFAULT_CALIBRATION,      //40   
+	COMM_OPCODE_VM2_LOAD_DEFAULT_CALIBRATION,      //40
 	COMM_OPCODE_VM_SET_TERMINAL,                   //41
 	COMM_OPCODE_VM_GET_TERMINAL,                   //42
-        
+
 	COMM_OPCODE_CHANGE_BAUD,                       //43
 
 };
@@ -172,24 +172,35 @@ private:
 
 /******************************************************************/
 
-class CommPacket_Synchronize : public CommPacket
+class CommPacket_keepAlive : public CommPacket
 {
 protected:
-	CommPacket_Synchronize (void) :
-		CommPacket (COMM_OPCODE_SYNC)
+	CommPacket_keepAlive (void) :
+		CommPacket (COMM_OPCODE_KEEP_ALIVE)
 	{}
 };
 
-class CommRequest_Synchronize : public CommPacket_Synchronize
+class CommRequest_keepAlive : public CommPacket_keepAlive
 {
 private:
-	CommRequest_Synchronize (void);
+	CommRequest_keepAlive (void);
+
+public:
+	uint32_t leaseTime_ms (void) const {return std::ntoh (leaseTime_ms_);}
+
+private:
+	uint32_t leaseTime_ms_;
 };
 
-class CommResponse_Synchronize : public CommPacket_Synchronize
+class CommResponse_keepAlive : public CommPacket_keepAlive
 {
 public:
-	CommResponse_Synchronize (void) {}
+	CommResponse_keepAlive (uint32_t leaseTime_ms) :
+		leaseTime_ms_ (std::hton (leaseTime_ms))
+	{}
+
+private:
+	uint32_t leaseTime_ms_;
 };
 
 /******************************************************************/
@@ -1578,52 +1589,52 @@ private:
 
 enum Comm_CallbackCode
 {
-	COMM_CBCODE_NOP,                             //00                        
-	COMM_CBCODE_IDN,                             //01                             
-	COMM_CBCODE_SYNC,                            //02                        
-	COMM_CBCODE_SET_SOURCE_MODE,                 //03                           
-	COMM_CBCODE_CS_SET_RANGE,                    //04                        
-	COMM_CBCODE_CS_GET_CALIBRATION,              //05                      
-	COMM_CBCODE_CS_VERIFY_CALIBRATION,           //06                        
-	COMM_CBCODE_CS_SET_CALIBRATION,              //07                       
-	COMM_CBCODE_CS_SAVE_CALIBRATION,             //08                    
-	COMM_CBCODE_CS_SET_CURRENT,                  //09                    
+	COMM_CBCODE_NOP,                             //00
+	COMM_CBCODE_IDN,                             //01
+	COMM_CBCODE_KEEP_ALIVE,                      //02
+	COMM_CBCODE_SET_SOURCE_MODE,                 //03
+	COMM_CBCODE_CS_SET_RANGE,                    //04
+	COMM_CBCODE_CS_GET_CALIBRATION,              //05
+	COMM_CBCODE_CS_VERIFY_CALIBRATION,           //06
+	COMM_CBCODE_CS_SET_CALIBRATION,              //07
+	COMM_CBCODE_CS_SAVE_CALIBRATION,             //08
+	COMM_CBCODE_CS_SET_CURRENT,                  //09
 
-	COMM_CBCODE_VS_SET_RANGE,                    //10                 
-	COMM_CBCODE_VS_GET_CALIBRATION,              //11                     
-	COMM_CBCODE_VS_VERIFY_CALIBRATION,           //12                         
-	COMM_CBCODE_VS_SET_CALIBRATION,              //13                     
-	COMM_CBCODE_VS_SAVE_CALIBRATION,             //14                        
-	COMM_CBCODE_VS_SET_VOLTAGE,                  //15                  
-	COMM_CBCODE_CM_SET_RANGE,                    //16                   
-	COMM_CBCODE_CM_GET_CALIBRATION,              //17                  
-	COMM_CBCODE_CM_SET_CALIBRATION,              //18                   
-	COMM_CBCODE_CM_SAVE_CALIBRATION,             //19                      
+	COMM_CBCODE_VS_SET_RANGE,                    //10
+	COMM_CBCODE_VS_GET_CALIBRATION,              //11
+	COMM_CBCODE_VS_VERIFY_CALIBRATION,           //12
+	COMM_CBCODE_VS_SET_CALIBRATION,              //13
+	COMM_CBCODE_VS_SAVE_CALIBRATION,             //14
+	COMM_CBCODE_VS_SET_VOLTAGE,                  //15
+	COMM_CBCODE_CM_SET_RANGE,                    //16
+	COMM_CBCODE_CM_GET_CALIBRATION,              //17
+	COMM_CBCODE_CM_SET_CALIBRATION,              //18
+	COMM_CBCODE_CM_SAVE_CALIBRATION,             //19
 
-	COMM_CBCODE_CM_READ,                         //20        
-	COMM_CBCODE_VM_SET_RANGE,                    //21            
-	COMM_CBCODE_VM_GET_CALIBRATION,              //22               
-	COMM_CBCODE_VM_SET_CALIBRATION,              //23              
-	COMM_CBCODE_VM_SAVE_CALIBRATION,             //24              
-	COMM_CBCODE_VM_READ,                         //25    
-	COMM_CBCODE_CS_LOAD_DEFAULT_CALIBRATION,     //26                 
-	COMM_CBCODE_VS_LOAD_DEFAULT_CALIBRATION,     //27                
-	COMM_CBCODE_CM_LOAD_DEFAULT_CALIBRATION,     //28               
-	COMM_CBCODE_VM_LOAD_DEFAULT_CALIBRATION,     //29                 
+	COMM_CBCODE_CM_READ,                         //20
+	COMM_CBCODE_VM_SET_RANGE,                    //21
+	COMM_CBCODE_VM_GET_CALIBRATION,              //22
+	COMM_CBCODE_VM_SET_CALIBRATION,              //23
+	COMM_CBCODE_VM_SAVE_CALIBRATION,             //24
+	COMM_CBCODE_VM_READ,                         //25
+	COMM_CBCODE_CS_LOAD_DEFAULT_CALIBRATION,     //26
+	COMM_CBCODE_VS_LOAD_DEFAULT_CALIBRATION,     //27
+	COMM_CBCODE_CM_LOAD_DEFAULT_CALIBRATION,     //28
+	COMM_CBCODE_VM_LOAD_DEFAULT_CALIBRATION,     //29
 
-	COMM_CBCODE_RM_READ_AUTOSCALE,               //30               
-	COMM_CBCODE_SYSTEM_CONFIG_GET,               //31          
-	COMM_CBCODE_SYSTEM_CONFIG_SET,               //32            
-	COMM_CBCODE_SYSTEM_CONFIG_SAVE,              //33                 
-	COMM_CBCODE_SYSTEM_CONFIG_LOAD_DEFAULT,      //34                
-	COMM_CBCODE_VM2_SET_RANGE,                   //35          
-	COMM_CBCODE_VM2_GET_CALIBRATION,             //36              
-	COMM_CBCODE_VM2_SET_CALIBRATION,             //37          
-	COMM_CBCODE_VM2_SAVE_CALIBRATION,            //38            
-	COMM_CBCODE_VM2_READ,                        //39         
+	COMM_CBCODE_RM_READ_AUTOSCALE,               //30
+	COMM_CBCODE_SYSTEM_CONFIG_GET,               //31
+	COMM_CBCODE_SYSTEM_CONFIG_SET,               //32
+	COMM_CBCODE_SYSTEM_CONFIG_SAVE,              //33
+	COMM_CBCODE_SYSTEM_CONFIG_LOAD_DEFAULT,      //34
+	COMM_CBCODE_VM2_SET_RANGE,                   //35
+	COMM_CBCODE_VM2_GET_CALIBRATION,             //36
+	COMM_CBCODE_VM2_SET_CALIBRATION,             //37
+	COMM_CBCODE_VM2_SAVE_CALIBRATION,            //38
+	COMM_CBCODE_VM2_READ,                        //39
 
-	COMM_CBCODE_VM2_LOAD_DEFAULT_CALIBRATION,    //40       
-	COMM_CBCODE_VM_SET_TERMINAL,                 //41     
+	COMM_CBCODE_VM2_LOAD_DEFAULT_CALIBRATION,    //40
+	COMM_CBCODE_VM_SET_TERMINAL,                 //41
 	COMM_CBCODE_VM_GET_TERMINAL,                 //42
 
 	COMM_CBCODE_CHANGE_BAUD,                     //43
@@ -1655,12 +1666,19 @@ public:
 	{}
 };
 
-class CommCB_Sync : public CommCB
+class CommCB_keepAlive : public CommCB
 {
 public:
-	CommCB_Sync (void) :
-		CommCB (COMM_CBCODE_SYNC)
+	CommCB_keepAlive (uint32_t leaseTime_ms) :
+		CommCB (COMM_CBCODE_KEEP_ALIVE),
+		leaseTime_ms_ (leaseTime_ms)
 	{}
+
+public:
+	uint32_t leaseTime_ms (void) const { return leaseTime_ms_; }
+
+private:
+	uint32_t leaseTime_ms_;
 };
 
 class CommCB_SetSourceMode : public CommCB
@@ -2237,8 +2255,9 @@ union CommCB_Union
 {
 	char gen0[sizeof (CommCB)];
 	char gen1[sizeof (CommCB_Identity)];
-	char gen2[sizeof (CommCB_Sync)];
+	char gen2[sizeof (CommCB_keepAlive)];
 	char gen3[sizeof (CommCB_SetSourceMode)];
+	char gen4[sizeof (CommCB_changeBaud)];
 
 	char cs0[sizeof (CommCB_CS_SetRange)];
 	char cs1[sizeof (CommCB_CS_GetCalibration)];
@@ -2286,8 +2305,6 @@ union CommCB_Union
 
 	char vm7[sizeof (CommCB_VM_SetTerminal)];
 	char vm8[sizeof (CommCB_VM_GetTerminal)];
-	
-	char gen4[sizeof (CommCB_changeBaud)];
 };
 
 /******************************************************************/
@@ -2304,6 +2321,8 @@ public:
 	void transmitIdentity (const char* identity,
 						   uint32_t hardware_version,
 						   uint32_t firmware_version);
+
+	void transmit_keepAlive (uint32_t leaseTime_ms);
 
 	void transmitSourceMode (Comm_SourceMode mode);
 
@@ -2396,9 +2415,9 @@ public:
 	void transmit_VM_getTerminal (Comm_VM_Terminal terminal);
 
 	/********************************/
-	
+
 	void transmit_changeBaud (uint32_t baudRate);
-	
+
 	/********************************/
 
 private:
@@ -2416,7 +2435,7 @@ private:
 
 	void nopCB                    (const void* data, uint16_t size);
 	void identityCB               (const void* data, uint16_t size);
-	void syncCB                   (const void* data, uint16_t size);
+	void keepAliveCB              (const void* data, uint16_t size);
 
 	void setSourceModeCB          (const void* data, uint16_t size);
 
@@ -2467,11 +2486,15 @@ private:
 
 	void VM_setTerminalCB (const void* data, uint16_t size);
 	void VM_getTerminalCB (const void* data, uint16_t size);
-	
+
 	void changeBaudCB (const void* data, uint16_t size);
 
 private:
 	void transmit (const QP4_Packet* packet);
+
+public:
+	void setBaudRate (uint32_t baudRate);
+
 };
 
 /******************************************************************/

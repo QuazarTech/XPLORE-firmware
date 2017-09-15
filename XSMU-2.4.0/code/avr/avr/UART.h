@@ -40,6 +40,9 @@ class UART
 	void write (const void* data, uint16_t size);
 
 	private:
+		void _setBaudrate (uint32_t baudrate);
+
+	private:
 	UART (void);
 
 	private:

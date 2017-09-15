@@ -21,8 +21,10 @@
 using namespace std;
 
 Application::Application (void) :
-	displayFrozen_ (false),
-	displayResumeAt_ (0)
+	displayFrozen_   (false),
+	displayResumeAt_ (0),
+	online_          (false),
+	offline_at_      (0)
 {
 	lcd;   // Creates LCD singleton
 	modCS; // Creates current source singleton
@@ -99,7 +101,7 @@ void Application::appCommCB (const CommCB* oCB)
 	{
 		&Application::nopCB,
 		&Application::identityCB,
-		&Application::syncCB,
+		&Application::keepAliveCB,
 
 		&Application::setSourceModeCB,
 
@@ -174,8 +176,15 @@ void Application::identityCB (const CommCB* oCB)
 							  hardware_version, FIRMWARE_VERSION);
 }
 
-void Application::syncCB (const CommCB* oCB)
-{}
+void Application::keepAliveCB (const CommCB* oCB)
+{
+	const CommCB_keepAlive* o =
+		reinterpret_cast<const CommCB_keepAlive*> (oCB);
+
+	uint32_t lease_time_ms = o->leaseTime_ms();
+	go_online (lease_time_ms);
+	appComm.transmit_keepAlive (lease_time_ms);
+}
 
 void Application::setSourceModeCB (const CommCB* oCB)
 {
@@ -704,7 +713,8 @@ void Application::VM_getTerminalCB (const CommCB* oCB)
 	// const CommCB_VM_GetTerminal* o =
 	// 	reinterpret_cast<const CommCB_VM_GetTerminal*> (oCB);
 
-	appComm.transmit_VM_getTerminal (toComm_VM_Terminal (modVM.getTerminal()));
+	appComm.transmit_VM_getTerminal (
+		toComm_VM_Terminal (modVM.getTerminal()));
 }
 
 /*************************************************************************/
@@ -714,8 +724,8 @@ void Application::changeBaudCB (const CommCB* oCB)
 	const CommCB_changeBaud* o =
 		reinterpret_cast<const CommCB_changeBaud*> (oCB);
 
-	_baudRate = o->baudRate();
-	appComm.transmit_changeBaud (_baudRate);
+	appComm.transmit_changeBaud (o->baudRate());
+	appComm.setBaudRate (o->baudRate());
 }
 
 /*************************************************************************/
@@ -727,6 +737,8 @@ void Application::freezeLocalDisplay (void)
 	displayResumeAt_ = systick.get() + systick.time_to_tick (2);
 }
 
+/************************************************************************/
+
 bool Application::localDisplayFrozen (void)
 {
 	if ((displayFrozen_) && (systick.get() >= displayResumeAt_))
@@ -735,8 +747,41 @@ bool Application::localDisplayFrozen (void)
 	return displayFrozen_;
 }
 
+/************************************************************************/
+/************************************************************************/
+
+void Application::check_alive (void)
+{
+	if (online_ && (systick.get() >= offline_at_))
+		go_offline();
+}
+
+/************************************************************************/
+
+void
+Application::go_online (uint32_t lease_time_ms)
+{
+	online_ = true;
+
+	offline_at_ = systick.get() +
+		systick.time_to_tick (lease_time_ms * 1e-3);
+}
+
+/************************************************************************/
+
+void Application::go_offline (void)
+{
+	online_ = false;
+//	appComm.restore_default_baudrate();
+}
+
+/************************************************************************/
+/************************************************************************/
+
 void Application::check (void)
 {
+	check_alive();
+
 	modCM.check();
 	modVM.check();
 
@@ -750,8 +795,8 @@ void Application::check (void)
 	}
 }
 
-/**************************************************************************/
-/**************************************************************************/
+/************************************************************************/
+/************************************************************************/
 
 void Application::CS_activate (void)
 {
@@ -759,13 +804,16 @@ void Application::CS_activate (void)
 	modLED.CS_activate();
 }
 
+/************************************************************************/
+
 void Application::CS_deactivate (void)
 {
 	modCS.deactivate();
 	modLED.CS_deactivate();
 }
 
-/********************************************************************/
+/************************************************************************/
+/************************************************************************/
 
 void Application::VS_activate (void)
 {
@@ -773,13 +821,16 @@ void Application::VS_activate (void)
 	modLED.VS_activate();
 }
 
+/************************************************************************/
+
 void Application::VS_deactivate (void)
 {
 	modVS.deactivate();
 	modLED.VS_deactivate();
 }
 
-/********************************************************************/
+/************************************************************************/
+/************************************************************************/
 
 void Application::displayCalibrationSaved (void)
 {
@@ -789,6 +840,8 @@ void Application::displayCalibrationSaved (void)
 	lcd.cursorAt (1, 0);
 	lcd << "     saved      ";
 }
+
+/************************************************************************/
 
 void Application::displaySourceMode (bool CS_Active, bool VS_Active)
 {
@@ -807,7 +860,8 @@ void Application::displaySourceMode (bool CS_Active, bool VS_Active)
 	lcd.fmtflags (flags);
 }
 
-/**************************************************************************/
+/************************************************************************/
+/************************************************************************/
 
 void Application::displaySourceRange (bool CS_Active, CS_Range IRange,
 									  bool VS_Active, VS_Range VRange)
@@ -840,6 +894,8 @@ void Application::displaySourceRange (bool CS_Active, CS_Range IRange,
 
 	lcd.fmtflags (flags);
 }
+
+/************************************************************************/
 
 void Application::displaySourceSetpoint (
 	bool CS_Active, float I, CS_Range IRange,
@@ -899,7 +955,7 @@ void Application::displaySourceSetpoint (
 	lcd.fmtflags (flags);
 }
 
-/**************************************************************************/
+/************************************************************************/
 
 void Application::displayMeterRange (CM_Range IRange, VM_Range VRange)
 {
@@ -926,7 +982,7 @@ void Application::displayMeterRange (CM_Range IRange, VM_Range VRange)
 	lcd.fmtflags (flags);
 }
 
-/**************************************************************************/
+/************************************************************************/
 
 void Application::displayIV (bool CM_Active, float I, CM_Range IRange,
 							 bool VM_Active, float V, VM_Range VRange)
@@ -992,9 +1048,14 @@ void Application::displayIV (bool CM_Active, float I, CM_Range IRange,
 
 // Resistance
 
+/************************************************************************/
+
 int main (void)
 {
 	_delay_ms (1000);
 	app.run();
 	return 0;
 }
+
+/************************************************************************/
+/************************************************************************/

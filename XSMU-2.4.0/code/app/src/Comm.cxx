@@ -136,6 +136,11 @@ void Comm::transmit (const QP4_Packet* packet)
 	uart.write (packet, packet->size());
 }
 
+void Comm::setBaudRate (uint32_t baudRate)
+{
+	uart.setBaudrate (baudRate);
+}
+
 /******************************************************************/
 /******************************************************************/
 
@@ -173,7 +178,7 @@ void Comm::interpret (const void* data, uint16_t size)
 	{
 		&Comm::nopCB,                         //00
 		&Comm::identityCB,                    //01
-		&Comm::syncCB,                        //02
+		&Comm::keepAliveCB,                   //02
 		&Comm::setSourceModeCB,               //03
 		&Comm::CS_setRangeCB,                 //04
 		&Comm::CS_getCalibrationCB,           //05
@@ -242,20 +247,18 @@ void Comm::identityCB (const void* , uint16_t)
 	do_callback (new (&callbackObject_) CommCB_Identity);
 }
 
-void Comm::syncCB (const void* , uint16_t)
+void Comm::keepAliveCB (const void* data, uint16_t size)
 {
-	do_callback (new (&callbackObject_) CommCB_Sync);
 
-	/*************************/
+	if (size < sizeof (CommRequest_keepAlive))
+		return;
 
-	QP4_Packet* response =
-	    qp4_.transmitter().alloc_packet (sizeof (CommResponse_Synchronize));
+	const CommRequest_keepAlive* req =
+		reinterpret_cast <const CommRequest_keepAlive*> (data);
 
-	new (response->body()) CommResponse_Synchronize;
-	response->seal();
+	do_callback (new (&callbackObject_)
+		CommCB_keepAlive (req->leaseTime_ms()));
 
-	transmit (response);
-	qp4_.transmitter().free_packet (response);
 }
 
 void Comm::setSourceModeCB (const void* data, uint16_t size)
@@ -727,6 +730,18 @@ void Comm::transmitIdentity (const char* identity,
 	new (response->body())
 		CommResponse_Identity (identity,
 			hardware_version, firmware_version);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+void Comm::transmit_keepAlive (uint32_t leaseTime_ms)
+{
+	QP4_Packet* response =
+	    qp4_.transmitter().alloc_packet (sizeof (CommResponse_keepAlive));
+
+	new (response->body()) CommResponse_keepAlive (leaseTime_ms);
 
 	response->seal();
 	transmit (response);

@@ -8,8 +8,9 @@ AVRDUDE = $(BIN_FOLDER)/avrdude
 RM = rm -rfv
 
 FLAGS = \
-	-Wall -O3 \
-	-fno-threadsafe-statics -fdata-sections -ffunction-sections -fno-exceptions \
+	-Wall -O3 -std=c++11 \
+	-fno-threadsafe-statics -fdata-sections \
+	-ffunction-sections -fno-exceptions \
 	-mmcu=atmega644 \
 	-fverbose-asm -g -Wa,-a=${basename $<}.s
 
