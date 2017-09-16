@@ -727,12 +727,15 @@ void Application::changeBaudCB (const CommCB* oCB)
 	uint32_t baudRate = o->baudRate();
 
 	if (appComm.isBaudValid (baudRate))
+	{
 		appComm.transmit_changeBaud (baudRate);
-
+		appComm.setBaudRate (baudRate);
+	}
 	else
+	{
 		appComm.transmit_nop();
+	}
 
-	appComm.setBaudRate (baudRate);
 }
 
 /*************************************************************************/
