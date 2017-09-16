@@ -32,7 +32,8 @@ class UART
 	static UART& _ (void);
 
 	public:
-	void setBaudrate (uint32_t baudrate);
+	bool isBaudValid (uint32_t bd);
+	void setBaudrate (uint32_t bd);
 	const uint32_t& baudrate (void) const {return baudrate_;}
 
 	public:

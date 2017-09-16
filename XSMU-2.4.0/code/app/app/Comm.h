@@ -172,6 +172,29 @@ private:
 
 /******************************************************************/
 
+class CommPacket_nop : public CommPacket
+{
+protected:
+	CommPacket_nop (void) :
+		CommPacket (COMM_OPCODE_NOP)
+	{}
+};
+
+class CommRequest_nop : public CommPacket_nop
+{
+private:
+	CommRequest_nop (void);
+};
+
+class CommResponse_nop : public CommPacket_nop
+{
+public:
+	CommResponse_nop (void)
+	{}
+};
+
+/******************************************************************/
+
 class CommPacket_keepAlive : public CommPacket
 {
 protected:
@@ -2322,6 +2345,8 @@ public:
 						   uint32_t hardware_version,
 						   uint32_t firmware_version);
 
+	void transmit_nop (void);
+
 	void transmit_keepAlive (uint32_t leaseTime_ms);
 
 	void transmitSourceMode (Comm_SourceMode mode);
@@ -2493,6 +2518,7 @@ private:
 	void transmit (const QP4_Packet* packet);
 
 public:
+	bool isBaudValid (uint32_t baudRate);
 	void setBaudRate (uint32_t baudRate);
 
 };

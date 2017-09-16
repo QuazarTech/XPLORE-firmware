@@ -136,6 +136,11 @@ void Comm::transmit (const QP4_Packet* packet)
 	uart.write (packet, packet->size());
 }
 
+bool Comm::isBaudValid (uint32_t baudRate)
+{
+	return uart.isBaudValid (baudRate);
+}
+
 void Comm::setBaudRate (uint32_t baudRate)
 {
 	uart.setBaudrate (baudRate);
@@ -730,6 +735,18 @@ void Comm::transmitIdentity (const char* identity,
 	new (response->body())
 		CommResponse_Identity (identity,
 			hardware_version, firmware_version);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+void Comm::transmit_nop (void)
+{
+	QP4_Packet* response =
+	    qp4_.transmitter().alloc_packet (sizeof (CommResponse_nop));
+
+	new (response->body()) CommResponse_nop();
 
 	response->seal();
 	transmit (response);

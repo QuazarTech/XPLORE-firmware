@@ -8,14 +8,31 @@
 
 ### 2.4.0
 
+2017-09-16  Gitansh Kataria  <gitansh@quazartech.com>
+
+* Feature: A transmit_nop feature is implamented
+
+* Comm.h/Comm.cxx:
+
+	++ class CommPacket_nop
+		++ class CommRequest_nop
+		++ class CommResponse_nop
+
+	++ void transmit_nop()
+
+
+### 2.4.0
+
 2017-09-14  Gitansh Kataria  <gitansh@quazartech.com>
 
-* Feature: A command to change baud-rate is added.
+* Feature: A command keepAlive is added to keep firmware streaming
 
 * UART.h/UART.cxx:
 
 	^^ setBaudRate  (uint32_t baudRate);
 	++ _setBaudRate (uint32_t baudRate);
+
+	++ bool isBaudValid (uint32_t baudRate);
 
 * Comm.h/Comm.cxx:
 
@@ -49,6 +66,7 @@
 		++ void transmit_keepAlive (uint32_t)
 
 		++ void setBaudRate (uint32_t)
+		++ bool isBaudValid (uint32_t baudRate);
 
 * Application.h/Application.cxx:
 
