@@ -93,6 +93,9 @@ private:
 
 	void changeBaudCB     (const CommCB* oCB);
 
+	void recSizeCB (const CommCB* oCB);
+	void recDataCB (const CommCB* oCB);
+
 private:
 	void CS_activate (void);
 	void CS_deactivate (void);

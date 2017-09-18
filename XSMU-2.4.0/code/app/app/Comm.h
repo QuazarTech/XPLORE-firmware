@@ -61,6 +61,8 @@ enum Comm_Opcode
 	COMM_OPCODE_VM_GET_TERMINAL,                   //42
 
 	COMM_OPCODE_CHANGE_BAUD,                       //43
+	COMM_OPCODE_REC_SIZE,                          //44
+	COMM_OPCODE_REC_DATA,                          //45
 
 };
 
@@ -1608,6 +1610,72 @@ private:
 };
 
 /******************************************************************/
+
+class CommPacket_recSize : public CommPacket
+{
+protected:
+	CommPacket_recSize (void) :
+		CommPacket (COMM_OPCODE_REC_SIZE)
+	{}
+};
+
+class CommRequest_recSize : public CommPacket_recSize
+{
+private:
+	CommRequest_recSize (void);
+
+public:
+	uint32_t recSize (void) const {return std::ntoh (recSize_);}
+
+private:
+	uint32_t recSize_;
+};
+
+class CommResponse_recSize : public CommPacket_recSize
+{
+public:
+	CommResponse_recSize (uint32_t recSize) :
+		recSize_ (std::hton (recSize))
+	{}
+
+private:
+	uint32_t recSize_;
+};
+
+/******************************************************************/
+
+class CommPacket_recData : public CommPacket
+{
+protected:
+	CommPacket_recData (void) :
+		CommPacket (COMM_OPCODE_REC_DATA)
+	{}
+};
+
+class CommRequest_recData : public CommPacket_recData
+{
+private:
+	CommRequest_recData (void);
+
+public:
+	int32_t *recData (void) const {return std::ntoh (recData_);}
+
+private:
+	int32_t *recData_;
+};
+
+class CommResponse_recData : public CommPacket_recData
+{
+public:
+	CommResponse_recData (int32_t *recData) :
+		recData_ (std::hton (recData))
+	{}
+
+private:
+	int32_t *recData_;
+};
+
+/******************************************************************/
 /******************************************************************/
 
 enum Comm_CallbackCode
@@ -1661,6 +1729,8 @@ enum Comm_CallbackCode
 	COMM_CBCODE_VM_GET_TERMINAL,                 //42
 
 	COMM_CBCODE_CHANGE_BAUD,                     //43
+	COMM_CBCODE_REC_SIZE,                        //44
+	COMM_CBCODE_REC_DATA,                        //45
 };
 
 /******************************************************************/
@@ -2272,6 +2342,39 @@ private:
 };
 
 /******************************************************************/
+
+class CommCB_recSize : public CommCB
+{
+public:
+	CommCB_recSize (uint32_t recSize) :
+		CommCB (COMM_CBCODE_REC_SIZE),
+		recSize_ (recSize)
+	{}
+
+public:
+	uint32_t recSize (void) const {return recSize_;}
+
+private:
+	uint32_t recSize_;
+};
+
+/******************************************************************/
+
+class CommCB_recData : public CommCB
+{
+public:
+	CommCB_recData (int32_t *recData) :
+		CommCB (COMM_CBCODE_REC_DATA),
+		recData_ (recData)
+	{}
+
+public:
+	int32_t *recData (void) const {return recData_;}
+
+private:
+	int32_t *recData_;
+};
+/******************************************************************/
 /******************************************************************/
 
 union CommCB_Union
@@ -2281,6 +2384,8 @@ union CommCB_Union
 	char gen2[sizeof (CommCB_keepAlive)];
 	char gen3[sizeof (CommCB_SetSourceMode)];
 	char gen4[sizeof (CommCB_changeBaud)];
+	char gen5[sizeof (CommCB_recSize)];
+	char gen6[sizeof (CommCB_recData)];
 
 	char cs0[sizeof (CommCB_CS_SetRange)];
 	char cs1[sizeof (CommCB_CS_GetCalibration)];
@@ -2443,6 +2548,9 @@ public:
 
 	void transmit_changeBaud (uint32_t baudRate);
 
+	void transmit_recSize (uint32_t recSize);
+	void transmit_recData (int32_t * recData);
+
 	/********************************/
 
 private:
@@ -2513,6 +2621,9 @@ private:
 	void VM_getTerminalCB (const void* data, uint16_t size);
 
 	void changeBaudCB (const void* data, uint16_t size);
+
+	void recSizeCB (const void* data, uint16_t size);
+	void recDataCB (const void* data, uint16_t size);
 
 private:
 	void transmit (const QP4_Packet* packet);

@@ -230,6 +230,8 @@ void Comm::interpret (const void* data, uint16_t size)
 		&Comm::VM_getTerminalCB,              //42
 
 		&Comm::changeBaudCB,                  //43
+		&Comm::recSizeCB,                     //44
+		&Comm::recDataCB,                     //45
 	};
 
 	if (size < sizeof (CommPacket))
@@ -719,6 +721,34 @@ void Comm::changeBaudCB (const void* data, uint16_t size)
 
 	do_callback (new (&callbackObject_)
 		CommCB_changeBaud (req->baudRate()));
+}
+
+/******************************************************************/
+
+void Comm::recSizeCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_recSize))
+		return;
+
+	const CommRequest_recSize* req =
+		reinterpret_cast <const CommRequest_recSize*> (data);
+
+	do_callback (new (&callbackObject_)
+			CommCB_recSize (req->recSize()));
+}
+
+/******************************************************************/
+
+void Comm::recDataCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_recData))
+		return;
+
+	const CommRequest_recData* req =
+		reinterpret_cast <const CommRequest_recData*> (data);
+
+	do_callback (new (&callbackObject_)
+			CommCB_recData (req->recData()));
 }
 
 /******************************************************************/
@@ -1382,5 +1412,38 @@ void Comm::transmit_changeBaud (uint32_t baudRate)
 	transmit (response);
 	qp4_.transmitter().free_packet (response);
 }
+
+/******************************************************************/
+
+void Comm::transmit_recSize (uint32_t recSize)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_recSize));
+
+	new (response->body())
+		CommResponse_recSize (recSize);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+/******************************************************************/
+
+void Comm::transmit_recData (int32_t *recData)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_recData));
+
+	new (response->body())
+		CommResponse_recData (recData);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
 /******************************************************************/
 /******************************************************************/

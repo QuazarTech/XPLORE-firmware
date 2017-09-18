@@ -30,5 +30,7 @@ The SMU is to stream voltmeter data at a specified frequency. This requires foll
 	5) Stop recording
 
 		-- STOP_REC : Stops recording gracefully.
+	
+	6)
 
 		-- KEEP_ALIVE : Stops recording if keep alive packets are not received, i.e. driver is dead.

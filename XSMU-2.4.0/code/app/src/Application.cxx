@@ -154,6 +154,8 @@ void Application::appCommCB (const CommCB* oCB)
 		&Application::VM_getTerminalCB,
 
 		&Application::changeBaudCB,
+		&Application::recSizeCB,
+		&Application::recDataCB,
 	};
 
 	if (oCB->code() < sizeof (cbs) / sizeof (cbs[0]))
@@ -736,6 +738,30 @@ void Application::changeBaudCB (const CommCB* oCB)
 		appComm.transmit_nop();
 	}
 
+}
+
+/*************************************************************************/
+
+void Application::recSizeCB (const CommCB* oCB)
+{
+	const CommCB_recSize* o =
+		reinterpret_cast<const CommCB_recSize*> (oCB);
+
+	uint32_t recSize = o->recSize();
+
+	appComm.transmit_recSize (recSize);
+}
+
+/*************************************************************************/
+
+void Application::recDataCB (const CommCB* oCB)
+{
+	const CommCB_recData* o =
+		reinterpret_cast<const CommCB_recData*> (oCB);
+
+	int32_t *recData = o->recData();
+
+	appComm.transmit_recData (recData);
 }
 
 /*************************************************************************/
