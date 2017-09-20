@@ -747,7 +747,8 @@ void Application::recSizeCB (const CommCB* oCB)
 	const CommCB_recSize* o =
 		reinterpret_cast<const CommCB_recSize*> (oCB);
 
-	uint32_t recSize = o->recSize();
+	//TODO : Get recSize of standby queue
+	uint16_t recSize = 0;
 
 	appComm.transmit_recSize (recSize);
 }
@@ -759,9 +760,13 @@ void Application::recDataCB (const CommCB* oCB)
 	const CommCB_recData* o =
 		reinterpret_cast<const CommCB_recData*> (oCB);
 
-	int32_t *recData = o->recData();
+	uint16_t recSize = o->recSize();
+	//TODO : Get size and recData from standby queue
+	uint16_t size = 0;
+	int32_t *recData = nullptr;
+	//Write recData directly into CommResponse_recData Packet
 
-	appComm.transmit_recData (recData);
+	appComm.transmit_recData (size, recData);
 }
 
 /*************************************************************************/
@@ -808,7 +813,7 @@ Application::go_online (uint32_t lease_time_ms)
 void Application::go_offline (void)
 {
 	online_ = false;
-//	appComm.restore_default_baudrate();
+	appComm.restore_default_baudrate();
 }
 
 /************************************************************************/

@@ -146,6 +146,11 @@ void Comm::setBaudRate (uint32_t baudRate)
 	uart.setBaudrate (baudRate);
 }
 
+void Comm::restore_default_baudrate (void)
+{
+	uart.setBaudrate (9600);
+}
+
 /******************************************************************/
 /******************************************************************/
 
@@ -733,8 +738,7 @@ void Comm::recSizeCB (const void* data, uint16_t size)
 	const CommRequest_recSize* req =
 		reinterpret_cast <const CommRequest_recSize*> (data);
 
-	do_callback (new (&callbackObject_)
-			CommCB_recSize (req->recSize()));
+	do_callback (new (&callbackObject_) CommCB_recSize ());
 }
 
 /******************************************************************/
@@ -748,7 +752,7 @@ void Comm::recDataCB (const void* data, uint16_t size)
 		reinterpret_cast <const CommRequest_recData*> (data);
 
 	do_callback (new (&callbackObject_)
-			CommCB_recData (req->recData()));
+			CommCB_recData (req->recSize()));
 }
 
 /******************************************************************/
@@ -1415,7 +1419,7 @@ void Comm::transmit_changeBaud (uint32_t baudRate)
 
 /******************************************************************/
 
-void Comm::transmit_recSize (uint32_t recSize)
+void Comm::transmit_recSize (uint16_t recSize)
 {
 	QP4_Packet* response =
 		qp4_.transmitter().alloc_packet (
@@ -1431,14 +1435,14 @@ void Comm::transmit_recSize (uint32_t recSize)
 
 /******************************************************************/
 
-void Comm::transmit_recData (int32_t *recData)
+void Comm::transmit_recData (uint16_t size, int32_t *recData)
 {
 	QP4_Packet* response =
 		qp4_.transmitter().alloc_packet (
 			sizeof (CommResponse_recData));
 
 	new (response->body())
-		CommResponse_recData (recData);
+		CommResponse_recData (size, recData);
 
 	response->seal();
 	transmit (response);

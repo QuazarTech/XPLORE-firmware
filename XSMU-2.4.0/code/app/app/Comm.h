@@ -1623,23 +1623,20 @@ class CommRequest_recSize : public CommPacket_recSize
 {
 private:
 	CommRequest_recSize (void);
-
-public:
-	uint32_t recSize (void) const {return std::ntoh (recSize_);}
-
-private:
-	uint32_t recSize_;
 };
 
 class CommResponse_recSize : public CommPacket_recSize
 {
 public:
-	CommResponse_recSize (uint32_t recSize) :
-		recSize_ (std::hton (recSize))
+	CommResponse_recSize (uint16_t recSize) :
+		recSize_ (std::hton (recSize)),
+		reserve_ (0)
 	{}
 
 private:
-	uint32_t recSize_;
+	uint16_t recSize_;
+	uint16_t reserve_;
+
 };
 
 /******************************************************************/
@@ -1658,21 +1655,39 @@ private:
 	CommRequest_recData (void);
 
 public:
-	int32_t *recData (void) const {return std::ntoh (recData_);}
+	uint16_t recSize (void) const {return std::ntoh (recSize_);}
 
 private:
-	int32_t *recData_;
+	uint16_t recSize_;
+	uint16_t reserve_;
 };
 
 class CommResponse_recData : public CommPacket_recData
 {
 public:
-	CommResponse_recData (int32_t *recData) :
-		recData_ (std::hton (recData))
-	{}
+	CommResponse_recData (uint16_t size, int32_t *recData) :
+		size_ (std::hton (size)),
+		reserve_ (0)
+	{
+		for (uint16_t i = 0; i < size_; ++i)
+		{
+			recData_[i] = std::hton(recData_[i]);
+		}
+	}
+
+//TODO : Software side
+// public:
+// 	uint16_t size (void);
+//
+// 	int32_t data (uint16_t idx) const
+// 	{
+// 		return ntoh (data_[idx]);
+// 	}
 
 private:
-	int32_t *recData_;
+	uint16_t size_;
+	uint16_t reserve_;
+	int32_t recData_[64];
 };
 
 /******************************************************************/
@@ -2346,16 +2361,9 @@ private:
 class CommCB_recSize : public CommCB
 {
 public:
-	CommCB_recSize (uint32_t recSize) :
-		CommCB (COMM_CBCODE_REC_SIZE),
-		recSize_ (recSize)
+	CommCB_recSize (void) :
+		CommCB (COMM_CBCODE_REC_SIZE)
 	{}
-
-public:
-	uint32_t recSize (void) const {return recSize_;}
-
-private:
-	uint32_t recSize_;
 };
 
 /******************************************************************/
@@ -2363,16 +2371,16 @@ private:
 class CommCB_recData : public CommCB
 {
 public:
-	CommCB_recData (int32_t *recData) :
+	CommCB_recData (uint16_t recSize) :
 		CommCB (COMM_CBCODE_REC_DATA),
-		recData_ (recData)
+		recSize_ (recSize)
 	{}
 
 public:
-	int32_t *recData (void) const {return recData_;}
+	uint16_t recSize (void) const {return recSize_;}
 
 private:
-	int32_t *recData_;
+	uint16_t recSize_;
 };
 /******************************************************************/
 /******************************************************************/
@@ -2548,8 +2556,8 @@ public:
 
 	void transmit_changeBaud (uint32_t baudRate);
 
-	void transmit_recSize (uint32_t recSize);
-	void transmit_recData (int32_t * recData);
+	void transmit_recSize (uint16_t recSize);
+	void transmit_recData (uint16_t size, int32_t * recData);
 
 	/********************************/
 
@@ -2631,6 +2639,7 @@ private:
 public:
 	bool isBaudValid (uint32_t baudRate);
 	void setBaudRate (uint32_t baudRate);
+	void restore_default_baudrate(void);
 
 };
 
