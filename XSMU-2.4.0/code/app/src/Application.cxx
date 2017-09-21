@@ -156,6 +156,8 @@ void Application::appCommCB (const CommCB* oCB)
 		&Application::changeBaudCB,
 		&Application::recSizeCB,
 		&Application::recDataCB,
+		&Application::StartRecCB,
+		&Application::StopRecCB,
 	};
 
 	if (oCB->code() < sizeof (cbs) / sizeof (cbs[0]))
@@ -773,6 +775,20 @@ void Application::recDataCB (const CommCB* oCB)
 	lcd.cursorAt (1, 0);
 	lcd << "    recDataCB   ";
 	_delay_ms (500);
+}
+
+/*************************************************************************/
+
+void Application::StartRecCB (const CommCB* oCB)
+{
+	//TODO : Start Recording
+	appComm.transmit_StartRec();
+}
+
+void Application::StopRecCB (const CommCB* oCB)
+{
+	//TODO : Stop Recording
+	appComm.transmit_StopRec();
 }
 
 /*************************************************************************/

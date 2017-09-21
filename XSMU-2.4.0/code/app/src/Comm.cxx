@@ -237,6 +237,8 @@ void Comm::interpret (const void* data, uint16_t size)
 		&Comm::changeBaudCB,                  //43
 		&Comm::recSizeCB,                     //44
 		&Comm::recDataCB,                     //45
+		&Comm::StartRecCB,                    //46
+		&Comm::StopRecCB,                     //47
 	};
 
 	if (size < sizeof (CommPacket))
@@ -753,6 +755,26 @@ void Comm::recDataCB (const void* data, uint16_t size)
 
 	do_callback (new (&callbackObject_)
 			CommCB_recData (req->size()));
+}
+
+/******************************************************************/
+
+void Comm::StartRecCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_StartRec))
+		return;
+
+	do_callback (new (&callbackObject_) CommCB_StartRec);
+}
+
+/******************************************************************/
+
+void Comm::StopRecCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_StopRec))
+		return;
+
+	do_callback (new (&callbackObject_) CommCB_StopRec);
 }
 
 /******************************************************************/
@@ -1443,6 +1465,38 @@ void Comm::transmit_recData (uint16_t size, int32_t *recData)
 
 	new (response->body())
 		CommResponse_recData (size, recData);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+/******************************************************************/
+
+void Comm::transmit_StartRec (void)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_StartRec));
+
+	new (response->body())
+		CommResponse_StartRec;
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+/******************************************************************/
+
+void Comm::transmit_StopRec (void)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_StopRec));
+
+	new (response->body())
+		CommResponse_StopRec;
 
 	response->seal();
 	transmit (response);

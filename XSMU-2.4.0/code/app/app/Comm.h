@@ -63,7 +63,8 @@ enum Comm_Opcode
 	COMM_OPCODE_CHANGE_BAUD,                       //43
 	COMM_OPCODE_REC_SIZE,                          //44
 	COMM_OPCODE_REC_DATA,                          //45
-
+	COMM_OPCODE_START_REC,                         //46
+	COMM_OPCODE_STOP_REC,                          //47
 };
 
 enum Comm_SourceMode
@@ -1682,6 +1683,50 @@ private:
 };
 
 /******************************************************************/
+
+class CommPacket_StartRec : public CommPacket
+{
+protected:
+	CommPacket_StartRec (void) :
+		CommPacket (COMM_OPCODE_START_REC)
+	{}
+};
+
+class CommRequest_StartRec : public CommPacket_StartRec
+{
+private:
+	CommRequest_StartRec (void);
+};
+
+class CommResponse_StartRec : public CommPacket_StartRec
+{
+public:
+	CommResponse_StartRec (void) {}
+};
+
+/******************************************************************/
+
+class CommPacket_StopRec : public CommPacket
+{
+protected:
+	CommPacket_StopRec (void) :
+		CommPacket (COMM_OPCODE_STOP_REC)
+	{}
+};
+
+class CommRequest_StopRec : public CommPacket_StopRec
+{
+private:
+	CommRequest_StopRec (void);
+};
+
+class CommResponse_StopRec : public CommPacket_StopRec
+{
+public:
+	CommResponse_StopRec (void) {}
+};
+
+/******************************************************************/
 /******************************************************************/
 
 enum Comm_CallbackCode
@@ -1737,6 +1782,8 @@ enum Comm_CallbackCode
 	COMM_CBCODE_CHANGE_BAUD,                     //43
 	COMM_CBCODE_REC_SIZE,                        //44
 	COMM_CBCODE_REC_DATA,                        //45
+	COMM_CBCODE_START_REC,                       //46
+	COMM_CBCODE_STOP_REC,                        //47
 };
 
 /******************************************************************/
@@ -2373,6 +2420,27 @@ public:
 private:
 	uint16_t size_;
 };
+
+/******************************************************************/
+
+class CommCB_StartRec : public CommCB
+{
+public:
+	CommCB_StartRec (void) :
+		CommCB (COMM_CBCODE_START_REC)
+	{}
+};
+
+/******************************************************************/
+
+class CommCB_StopRec : public CommCB
+{
+public:
+	CommCB_StopRec (void) :
+		CommCB (COMM_CBCODE_STOP_REC)
+	{}
+};
+
 /******************************************************************/
 /******************************************************************/
 
@@ -2385,6 +2453,8 @@ union CommCB_Union
 	char gen4[sizeof (CommCB_changeBaud)];
 	char gen5[sizeof (CommCB_recSize)];
 	char gen6[sizeof (CommCB_recData)];
+	char gen7[sizeof (CommCB_StartRec)];
+	char gen8[sizeof (CommCB_StopRec)];
 
 	char cs0[sizeof (CommCB_CS_SetRange)];
 	char cs1[sizeof (CommCB_CS_GetCalibration)];
@@ -2549,6 +2619,8 @@ public:
 
 	void transmit_recSize (uint16_t recSize);
 	void transmit_recData (uint16_t size, int32_t * recData);
+	void transmit_StartRec (void);
+	void transmit_StopRec (void);
 
 	/********************************/
 
@@ -2621,8 +2693,10 @@ private:
 
 	void changeBaudCB (const void* data, uint16_t size);
 
-	void recSizeCB (const void* data, uint16_t size);
-	void recDataCB (const void* data, uint16_t size);
+	void recSizeCB  (const void* data, uint16_t size);
+	void recDataCB  (const void* data, uint16_t size);
+	void StartRecCB (const void* data, uint16_t size);
+	void StopRecCB  (const void* data, uint16_t size);
 
 private:
 	void transmit (const QP4_Packet* packet);
@@ -2630,7 +2704,7 @@ private:
 public:
 	bool isBaudValid (uint32_t baudRate);
 	void setBaudRate (uint32_t baudRate);
-	void restore_default_baudrate(void);
+	void restore_default_baudrate (void);
 
 };
 
