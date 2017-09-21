@@ -757,22 +757,12 @@ void Application::recSizeCB (const CommCB* oCB)
 
 void Application::recDataCB (const CommCB* oCB)
 {
-	_delay_ms (500);
-	freezeLocalDisplay();
-	lcd.cursorAt (0, 0);
-	lcd << "   Entering     ";
-
-	lcd.cursorAt (1, 0);
-	lcd << "    recDataCB   ";
-
-	_delay_ms (1000);
-
 	const CommCB_recData* o =
 		reinterpret_cast<const CommCB_recData*> (oCB);
 
 	//TODO : Get size and recData from standby queue
 	uint16_t size = o->size();
-	int32_t *recData = nullptr;
+	int32_t recData [1] = {1};
 
 	appComm.transmit_recData (size, recData);
 
@@ -782,6 +772,7 @@ void Application::recDataCB (const CommCB* oCB)
 
 	lcd.cursorAt (1, 0);
 	lcd << "    recDataCB   ";
+	_delay_ms (500);
 }
 
 /*************************************************************************/
