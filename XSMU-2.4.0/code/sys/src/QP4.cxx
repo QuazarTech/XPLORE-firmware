@@ -1,18 +1,11 @@
 #include "sys/QP4.h"
 
 #include <new>
+#include <stdlib.h>
+
 #include "pgmspace"
 
 using namespace std;
-
-QP4_Packet *QP4_Packet::alloc (uint16_t size)
-{
-	static char mem[64];
-	return new (mem) QP4_Packet (size);
-}
-
-void QP4_Packet::free (QP4_Packet *packet)
-{}
 
 QP4_Packet::QP4_Packet (uint16_t size) :
     startFrameMarker_ (hton (QP4_SOF_MARKER)),
@@ -35,15 +28,19 @@ void QP4_Packet::seal (void)
 
 /***********************************************************************/
 
-QP4_Packet *QP4_Transmitter::alloc_packet (uint16_t size)
+QP4_Packet* QP4_Transmitter::alloc_packet (uint16_t size)
 {
-	return QP4_Packet::alloc (size);
+	auto packet = _packet;
+
+	if (size > _capacity)
+		packet = static_cast<QP4_Packet*> (realloc (
+			_packet, sizeof (QP4_Packet) + (_capacity = size)));
+
+	return packet ? (new (_packet = packet) QP4_Packet (size)) : nullptr;
 }
 
 void QP4_Transmitter::free_packet (QP4_Packet *packet)
-{
-	QP4_Packet::free (packet);
-}
+{}
 
 /***********************************************************/
 
