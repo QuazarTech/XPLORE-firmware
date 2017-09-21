@@ -748,7 +748,7 @@ void Application::recSizeCB (const CommCB* oCB)
 		reinterpret_cast<const CommCB_recSize*> (oCB);
 
 	//TODO : Get recSize of standby queue
-	uint16_t recSize = 0;
+	uint16_t recSize = 1;
 
 	appComm.transmit_recSize (recSize);
 }
@@ -760,11 +760,9 @@ void Application::recDataCB (const CommCB* oCB)
 	const CommCB_recData* o =
 		reinterpret_cast<const CommCB_recData*> (oCB);
 
-	uint16_t recSize = o->recSize();
 	//TODO : Get size and recData from standby queue
-	uint16_t size = 0;
+	uint16_t size = o->size();
 	int32_t *recData = nullptr;
-	//Write recData directly into CommResponse_recData Packet
 
 	appComm.transmit_recData (size, recData);
 }

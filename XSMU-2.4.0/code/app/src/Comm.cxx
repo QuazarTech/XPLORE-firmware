@@ -752,7 +752,7 @@ void Comm::recDataCB (const void* data, uint16_t size)
 		reinterpret_cast <const CommRequest_recData*> (data);
 
 	do_callback (new (&callbackObject_)
-			CommCB_recData (req->recSize()));
+			CommCB_recData (req->size()));
 }
 
 /******************************************************************/

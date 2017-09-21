@@ -1655,10 +1655,10 @@ private:
 	CommRequest_recData (void);
 
 public:
-	uint16_t recSize (void) const {return std::ntoh (recSize_);}
+	uint16_t size (void) const {return std::ntoh (size_);}
 
 private:
-	uint16_t recSize_;
+	uint16_t size_;
 	uint16_t reserve_;
 };
 
@@ -1674,15 +1674,6 @@ public:
 			recData_[i] = std::hton(recData_[i]);
 		}
 	}
-
-//TODO : Software side
-// public:
-// 	uint16_t size (void);
-//
-// 	int32_t data (uint16_t idx) const
-// 	{
-// 		return ntoh (data_[idx]);
-// 	}
 
 private:
 	uint16_t size_;
@@ -2371,16 +2362,16 @@ public:
 class CommCB_recData : public CommCB
 {
 public:
-	CommCB_recData (uint16_t recSize) :
+	CommCB_recData (uint16_t size) :
 		CommCB (COMM_CBCODE_REC_DATA),
-		recSize_ (recSize)
+		size_ (size)
 	{}
 
 public:
-	uint16_t recSize (void) const {return recSize_;}
+	uint16_t size (void) const {return size_;}
 
 private:
-	uint16_t recSize_;
+	uint16_t size_;
 };
 /******************************************************************/
 /******************************************************************/
