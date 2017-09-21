@@ -757,13 +757,15 @@ void Application::recSizeCB (const CommCB* oCB)
 
 void Application::recDataCB (const CommCB* oCB)
 {
+	_delay_ms (500);
+	freezeLocalDisplay();
 	lcd.cursorAt (0, 0);
 	lcd << "   Entering     ";
 
 	lcd.cursorAt (1, 0);
 	lcd << "    recDataCB   ";
 
-	_delay_ms (200);
+	_delay_ms (1000);
 
 	const CommCB_recData* o =
 		reinterpret_cast<const CommCB_recData*> (oCB);
@@ -774,13 +776,12 @@ void Application::recDataCB (const CommCB* oCB)
 
 	appComm.transmit_recData (size, recData);
 
+	freezeLocalDisplay();
 	lcd.cursorAt (0, 0);
 	lcd << "    Exiting     ";
 
 	lcd.cursorAt (1, 0);
 	lcd << "    recDataCB   ";
-
-	_delay_ms (200);
 }
 
 /*************************************************************************/
