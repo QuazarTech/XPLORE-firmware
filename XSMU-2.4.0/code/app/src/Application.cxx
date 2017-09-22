@@ -763,18 +763,10 @@ void Application::recDataCB (const CommCB* oCB)
 		reinterpret_cast<const CommCB_recData*> (oCB);
 
 	//TODO : Get size and recData from standby queue
-	uint16_t size = o->size();
 	int32_t recData [1] = {1};
+	uint16_t size = sizeof(recData)/sizeof(recData[0]);
 
 	appComm.transmit_recData (size, recData);
-
-	freezeLocalDisplay();
-	lcd.cursorAt (0, 0);
-	lcd << "    Exiting     ";
-
-	lcd.cursorAt (1, 0);
-	lcd << "    recDataCB   ";
-	_delay_ms (500);
 }
 
 /*************************************************************************/
