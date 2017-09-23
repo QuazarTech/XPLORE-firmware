@@ -58,7 +58,7 @@ using namespace std;
 /**** AD7734 CHANNEL STATUS REGISTER ****/
 #define AD7734_STATUS_SIGN_OVR_MASK        (0x3 << 0)
 
-/**********************************************************************/
+/************************************************************************/
 
 AD7734::AD7734 (void)
 {
@@ -70,7 +70,7 @@ AD7734::AD7734 (void)
 						 SPI_MSB_FIRST);
 }
 
-/**********************************************************************/
+/************************************************************************/
 
 void AD7734::activate (void)
 {
@@ -102,7 +102,7 @@ void AD7734::initialize (void)
 	selectHigh();
 }
 
-/**********************************************************************/
+/************************************************************************/
 
 void AD7734::writeReg8 (uint8_t reg_addr, uint8_t value)
 {
@@ -162,7 +162,7 @@ void AD7734::reset (void)
 	deselect();
 }
 
-/**********************************************************************/
+/************************************************************************/
 
 // bool AD7734::waitForData (void)
 // {
@@ -251,4 +251,33 @@ int32_t AD7734::read (uint8_t chn)
 	return adc24 - 0x800000;
 }
 
-/**********************************************************************/
+/************************************************************************/
+
+void AD7734::start (uint8_t chn)
+{
+	synchronize();
+	activate();
+
+	// Configures 10V input
+	writeReg8 (AD7734_CHANNEL_SETUP_REGISTER | chn,
+			   AD7734_CHANNEL_ENABLE | AD7734_BIPOLAR_10V_RANGE);
+
+	// Configures digital filters
+	writeReg8 (AD7734_CONVERSION_TIME_REGISTER | chn,
+			   AD7734_SPEED_500Hz_WITH_CHOP);
+
+	// Initiates continuous 24-bit conversion.
+	writeReg8 (AD7734_MODE_REGISTER | chn,
+			   AD7734_CONTINUOUS_CONVERSION_MODE | AD7734_DUMP_MODE |
+			   AD7734_RESOLUTION_24BIT | AD7734_CLAMP_DISABLE);
+}
+
+/************************************************************************/
+
+void AD7734::stop (void)
+{
+	deactivate();
+}
+
+/************************************************************************/
+/************************************************************************/

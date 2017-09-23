@@ -7,6 +7,7 @@
 #include "app/CM.h"
 #include "app/VM.h"
 #include "app/Comm.h"
+#include "app/Acquisition.h"
 #include "sys/SysTick.h"
 
 class Application : public Applet
@@ -138,6 +139,9 @@ private:
 private:
 	bool online_;
 	SysTick::tick_t offline_at_;
+
+private:
+	std::unique_ptr<Acquisition> _acq;
 };
 
 #define app    Application::_()

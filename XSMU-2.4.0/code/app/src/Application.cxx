@@ -9,6 +9,7 @@
 #include "app/LEDDisplay.h"
 #include "app/firmware_version.h"
 #include "app/SystemConfig.h"
+#include "app/Acquisition.h"
 
 #include "sys/LCD.h"
 #include "sys/hardware.h"
@@ -773,13 +774,19 @@ void Application::recDataCB (const CommCB* oCB)
 
 void Application::StartRecCB (const CommCB* oCB)
 {
+	_acq.reset (new Acquisition);
+
 	//TODO : Start Recording
+	_acq->start();
 	appComm.transmit_StartRec();
 }
 
 void Application::StopRecCB (const CommCB* oCB)
 {
 	//TODO : Stop Recording
+	_acq->stop();
+
+	_acq.reset();
 	appComm.transmit_StopRec();
 }
 

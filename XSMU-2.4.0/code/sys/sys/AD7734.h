@@ -10,6 +10,11 @@ public:
 	AD7734 (void);
 	void initialize (void);
 	int32_t read (uint8_t chn);
+	int32_t readData (uint8_t reg_addr);
+
+public:
+	void    start (uint8_t chn);
+	void    stop (void);
 
 private:
 	void activate   (void);
@@ -22,7 +27,6 @@ private:
 private:
 	void    reset (void);
 	void    writeReg8 (uint8_t reg_addr, uint8_t value);
-	int32_t readData (uint8_t reg_addr);
 
 private:
 	bool waitForData (void);
