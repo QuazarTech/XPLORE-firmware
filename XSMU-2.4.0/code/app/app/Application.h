@@ -10,6 +10,8 @@
 #include "app/Acquisition.h"
 #include "sys/SysTick.h"
 
+#include <memory>
+
 class Application : public Applet
 {
 public:
