@@ -3,10 +3,11 @@
 
 #include <stdint.h>
 
+class Storage;
 class SystemConfig
 {
 public:
-	static SystemConfig& _ (void);
+	static SystemConfig* get_singleton (void);
 
 public:
 	void hwBoardNo  (int16_t no) { hwBoardNo_  = no; }
@@ -49,9 +50,9 @@ private:
 	int16_t reserved15_;
 
 private:
+	Storage* storage;
+private:
 	SystemConfig (void);
 };
-
-#define system_config    SystemConfig::_()
 
 #endif

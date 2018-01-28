@@ -6,7 +6,7 @@
 class I2C
 {
 	public:
-	static I2C& _ (void);
+	static I2C* get_singleton (void);
 
 	public:
 	uint16_t read (uint8_t slaveAddress, void* data, uint16_t size);
@@ -54,7 +54,5 @@ class I2C
 	uint16_t txsize_, rxsize_;
 	uint8_t slaveAddress_, mode_;
 };
-
-#define i2c    I2C::_()
 
 #endif

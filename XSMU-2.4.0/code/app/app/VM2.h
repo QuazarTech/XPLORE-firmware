@@ -31,10 +31,11 @@ protected:
 // 	virtual void synchronize (void);
 };
 
+class Storage;
 class VM2
 {
 public:
-	static VM2& _ (void) {static VM2 o; return o;}
+	static VM2* get_singleton (void) {static auto o = new VM2; return o;}
 
 public:
 	const VM2_Range& range (void) const {return range_;}
@@ -62,11 +63,10 @@ private:
 	AD7734_VM2 adc_;
 	VM2_Range range_;
 	VM_CalibrationTable calibration_;
+	Storage* storage;
 
 private:
 	VM2 (void);
 };
-
-#define modVM2    VM2::_()
 
 #endif

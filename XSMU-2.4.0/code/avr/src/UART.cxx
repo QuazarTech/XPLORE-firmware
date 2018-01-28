@@ -99,9 +99,9 @@ uint16_t UART_RxBuffer::size (void) const
 
 /***************************************************************/
 
-UART& UART::_ (void)
+UART* UART::get_singleton (void)
 {
-	static UART o;
+	static auto o = new UART;
 	return o;
 }
 

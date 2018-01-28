@@ -2,10 +2,11 @@
 #define __VM__
 
 #include "app/Calibration.h"
-#include "utils/Filter.h"
 #include "sys/PCA9557.h"
 #include "sys/AD7734.h"
+#include "utils/Filter.h"
 #include <stdint.h>
+#include <memory>
 
 enum VM_Range
 {
@@ -45,10 +46,12 @@ protected:
 // 	virtual void synchronize (void);
 };
 
+class Storage;
+
 class VM
 {
 public:
-	static VM& _ (void);
+	static VM* get_singleton (void);
 
 public:
 	const VM_Range& range (void) const {return range_;}
@@ -97,8 +100,8 @@ private:
 
 	void fillDefaultCalibration (float V_FS,
 								 VM_CalibrationTable* calibration);
+private:
+    Storage* storage;
 };
-
-#define modVM    VM::_()
 
 #endif

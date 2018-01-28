@@ -6,16 +6,24 @@
 #include "app/VS.h"
 #include "app/CM.h"
 #include "app/VM.h"
+#include "app/VM2.h"
+#include "app/RM.h"
+#include "app/LEDDisplay.h"
 #include "app/Comm.h"
-#include "app/Acquisition.h"
 #include "sys/SysTick.h"
-
 #include <memory>
+#include <cstdlib>
+
+class LCD;
+class SystemConfig;
+
+void* operator new (unsigned int size) { return malloc (size); }
+void operator delete (void* mem) { free (mem); }
 
 class Application : public Applet
 {
 public:
-	static Application& _ (void);
+	static Application* get_singleton (void);
 	void run (void);
 
 public:
@@ -24,7 +32,6 @@ public:
 public:
 	bool
 	is_online (void) const { return online_; }
-
 	bool
 	is_offline (void) const { return not online_; }
 
@@ -94,12 +101,11 @@ private:
 	void VM_setTerminalCB (const CommCB* oCB);
 	void VM_getTerminalCB (const CommCB* oCB);
 
-	void changeBaudCB     (const CommCB* oCB);
-
-	void recSizeCB  (const CommCB* oCB);
-	void recDataCB  (const CommCB* oCB);
-	void StartRecCB (const CommCB* oCB);
-	void StopRecCB  (const CommCB* oCB);
+	void changeBaudCB  (const CommCB* oCB);
+	void recSizeCB     (const CommCB* oCB);
+	void recDataCB     (const CommCB* oCB);
+	void StartRecCB    (const CommCB* oCB);
+	void StopRecCB     (const CommCB* oCB);
 
 private:
 	void CS_activate (void);
@@ -143,9 +149,24 @@ private:
 	SysTick::tick_t offline_at_;
 
 private:
-	std::unique_ptr<Acquisition> _acq;
-};
+//	std::unique_ptr<Acquisition> _acq;
+	bool _acquiring;
 
-#define app    Application::_()
+private:
+	void displayGen (char *data1, char *data2);
+
+private:
+	LCD* lcd;
+    CS* modCS;
+    VS* modVS;
+    CM* modCM;
+	VM* modVM;
+	VM2* modVM2;
+	Comm* appComm;
+    RM* modRM;
+	SystemConfig* system_config;
+	SysTick* systick;
+	LED_Display* modLED;
+};
 
 #endif

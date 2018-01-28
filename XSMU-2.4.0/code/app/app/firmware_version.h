@@ -12,7 +12,7 @@
 #define MINOR_VERSION_NO(x)   ((x >>  8) & 0xFF)
 #define BUGFIX_VERSION_NO(x)  ((x >>  0) & 0xFF)
 
-#define FIRMWARE_VERSION    MAKE_VERSION (-2, -2, -3)
+#define FIRMWARE_VERSION    MAKE_VERSION (2, 2, 4)
 
 // Uncomment the following line in the tagged version
 // #define FIRMWARE_RELEASED

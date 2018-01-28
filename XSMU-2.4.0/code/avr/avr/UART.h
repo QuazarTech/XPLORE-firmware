@@ -29,7 +29,7 @@ class UART_RxBuffer
 class UART
 {
 	public:
-	static UART& _ (void);
+	static UART* get_singleton (void);
 
 	public:
 	bool isBaudValid (uint32_t bd);
@@ -63,7 +63,5 @@ class UART
 	void isr (void);
 	static void isr (void*);
 };
-
-#define uart    UART::_()
 
 #endif

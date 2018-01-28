@@ -25,6 +25,7 @@ private:
 
 private:
 	SPI_Configuration spiConfig_;
+	SPI *spi;
 };
 
 #endif

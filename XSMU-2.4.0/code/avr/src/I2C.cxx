@@ -33,9 +33,9 @@ enum I2C_Mode
 	I2C_MODE_WRITE_THEN_READ
 };
 
-I2C& I2C::_ (void)
+I2C* I2C::get_singleton (void)
 {
-	static I2C o;
+	static auto o = new I2C;
 	return o;
 }
 

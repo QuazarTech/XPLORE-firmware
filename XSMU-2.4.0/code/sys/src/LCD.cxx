@@ -43,9 +43,9 @@ void LCD_FmtFlags::right (void) {left_ = false;}
 
 /*********************************************/
 
-LCD& LCD::_ (void)
+LCD* LCD::get_singleton (void)
 {
-	static LCD o;
+	static auto o = new LCD;
 	return o;
 }
 

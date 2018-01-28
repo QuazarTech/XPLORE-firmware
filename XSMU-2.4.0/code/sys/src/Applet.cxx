@@ -1,17 +1,14 @@
 #include "sys/Applet.h"
 
 using namespace std;
-
-bool Applet::first_ = true;
-vector<Applet*, APPLET_UPPER_BOUND> Applet::applets_;
+Applet* Applet::applets_[APPLET_UPPER_BOUND] = { 0 };
 
 /************************************************************************/
 
 void Applet::poll (void)
 {
-	vector<Applet*, APPLET_UPPER_BOUND>::const_iterator it;
-	for (it = applets_.begin(); it != applets_.end(); ++it)
-		(*it)->check();
+	for (auto applet : applets_)
+		if (applet) applet->check();
 }
 
 void Applet::run (void)
@@ -25,7 +22,20 @@ Applet::Applet (void) :
     user_data_ (0),
     cb_ (default_callback)
 {
-	applets_.push_back (this);
+	for (auto& applet : applets_)
+		if (applet == nullptr) {
+			applet = this;
+			break;
+		}
+}
+
+Applet::~Applet (void)
+{
+	for (auto& applet : applets_)
+		if (applet == this) {
+			applet = nullptr;
+			break;
+		}
 }
 
 void Applet::callback (AppletCallback cb, void* user_data)

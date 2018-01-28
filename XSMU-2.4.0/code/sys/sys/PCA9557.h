@@ -2,6 +2,7 @@
 #define __PCA9557__
 
 #include <stdint.h>
+#include "avr/I2C.h"
 
 class PCA9557
 {
@@ -33,6 +34,7 @@ class PCA9557
 
 	private:
 	uint8_t completeDeviceAddress (void) const;
+	I2C* i2c;
 };
 
 #endif

@@ -99,9 +99,9 @@ static SysTick::tick_t get_timer (void)
 /********************************************************************/
 /********************************************************************/
 
-SysTick& SysTick::_ (void)
+SysTick* SysTick::get_singleton (void)
 {
-	static SysTick o;
+	static auto o = new SysTick;
 	return o;
 }
 

@@ -12,9 +12,9 @@ using namespace std;
 
 /***************************************************************/
 
-SPI& SPI::_ (void)
+SPI* SPI::get_singleton (void)
 {
-	static SPI o;
+	static auto o = new SPI;
 	return o;
 }
 

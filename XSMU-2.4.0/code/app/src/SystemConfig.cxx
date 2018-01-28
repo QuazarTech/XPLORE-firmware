@@ -1,27 +1,27 @@
 #include "app/SystemConfig.h"
 #include "app/Storage.h"
 
-SystemConfig& SystemConfig::_ (void)
+SystemConfig* SystemConfig::get_singleton (void)
 {
-	static SystemConfig o;
+	static auto o = new SystemConfig;
 	return o;
 }
 
-SystemConfig::SystemConfig (void)
+SystemConfig::SystemConfig (void) : storage (Storage::get_singleton())
 {
 	read();
 }
 
 void SystemConfig::read (void)
 {
-	if (storage.read (STORAGE_FILENO_SYSTEM_CONFIG, this) !=
+	if (storage->read (STORAGE_FILENO_SYSTEM_CONFIG, this) !=
 	sizeof (SystemConfig))
 		fillDefault();
 }
 
 void SystemConfig::write (void)
 {
-	storage.write (STORAGE_FILENO_SYSTEM_CONFIG, this);
+	storage->write (STORAGE_FILENO_SYSTEM_CONFIG, this);
 }
 
 void SystemConfig::fillDefault (void)

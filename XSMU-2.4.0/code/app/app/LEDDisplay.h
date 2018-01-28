@@ -6,7 +6,7 @@
 class LED_Display
 {
 public:
-	static LED_Display& _ (void);
+	static LED_Display* get_singleton (void);
 
 public:
 	void CS_activate (void);
@@ -24,7 +24,5 @@ public:
 private:
 	LED_Display (void);
 };
-
-#define modLED    LED_Display::_()
 
 #endif

@@ -58,9 +58,9 @@ using namespace std;
 /**** AD7734 CHANNEL STATUS REGISTER ****/
 #define AD7734_STATUS_SIGN_OVR_MASK        (0x3 << 0)
 
-/************************************************************************/
+/**********************************************************************/
 
-AD7734::AD7734 (void)
+AD7734::AD7734 (void) : spi (SPI::get_singleton())
 {
 	spiConfiguration_ =
 	SPI::makeConfiguration (SPI_CLOCK_MCLK_BY_128,
@@ -70,7 +70,7 @@ AD7734::AD7734 (void)
 						 SPI_MSB_FIRST);
 }
 
-/************************************************************************/
+/**********************************************************************/
 
 void AD7734::activate (void)
 {
@@ -85,14 +85,14 @@ void AD7734::deactivate (void)
 
 void AD7734::select (void)
 {
-	spi.enable (spiConfiguration_);
+	spi->enable (spiConfiguration_);
 	selectLow();
 }
 
 void AD7734::deselect (void)
 {
 	selectHigh();
-	spi.reset();
+	spi->reset();
 }
 
 void AD7734::initialize (void)
@@ -102,7 +102,7 @@ void AD7734::initialize (void)
 	selectHigh();
 }
 
-/************************************************************************/
+/**********************************************************************/
 
 void AD7734::writeReg8 (uint8_t reg_addr, uint8_t value)
 {
@@ -112,7 +112,7 @@ void AD7734::writeReg8 (uint8_t reg_addr, uint8_t value)
 	};
 
 	select();
-	spi.write (data, sizeof (data));
+	spi->write (data, sizeof (data));
 	deselect();
 }
 
@@ -121,10 +121,10 @@ int32_t AD7734::readData (uint8_t reg_addr)
 	select();
 
 	const uint8_t data = reg_addr | AD7734_OPERATION_READ;
-	spi.write (&data, sizeof (data));
+	spi->write (&data, sizeof (data));
 
 	uint8_t status;
-	spi.read (&status, sizeof (status), (char)0);
+	spi->read (&status, sizeof (status), (char)0);
 
 	union
 	{
@@ -143,7 +143,7 @@ int32_t AD7734::readData (uint8_t reg_addr)
 	ua32.u8[0] = pgm_read (
 		over_ranges[status & AD7734_STATUS_SIGN_OVR_MASK]);
 
-	spi.read (ua32.u8 + 1, 3, (char)0);
+	spi->read (ua32.u8 + 1, 3, (char)0);
 
 	deselect();
 
@@ -158,11 +158,11 @@ void AD7734::reset (void)
 	};
 
 	select();
-	spi.write_P (resetSequence, sizeof (resetSequence));
+	spi->write_P (resetSequence, sizeof (resetSequence));
 	deselect();
 }
 
-/************************************************************************/
+/**********************************************************************/
 
 // bool AD7734::waitForData (void)
 // {
@@ -251,7 +251,7 @@ int32_t AD7734::read (uint8_t chn)
 	return adc24 - 0x800000;
 }
 
-/************************************************************************/
+/**********************************************************************/
 
 void AD7734::start (uint8_t chn)
 {

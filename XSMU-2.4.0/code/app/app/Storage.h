@@ -46,12 +46,9 @@ Storage_FileNo toStorage_VM2_FileNo (VM2_Range range);
 class Storage : public FS
 {
 public:
-	static Storage& _ (void);
-
+	static Storage* get_singleton (void);
 private:
 	Storage (uint16_t size, const uint16_t* file_sizes);
 };
-
-#define storage    Storage::_()
 
 #endif

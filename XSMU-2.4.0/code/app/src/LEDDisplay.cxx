@@ -28,9 +28,9 @@
 #define MASK                      (VM_MASK | CS_MASK | VS_MASK)
 #define PORT                       PORTB
 
-LED_Display& LED_Display::_ (void)
+LED_Display* LED_Display::get_singleton (void)
 {
-	static LED_Display o;
+	static auto o  = new LED_Display;
 	return o;
 }
 

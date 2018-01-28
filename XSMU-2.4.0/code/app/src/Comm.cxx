@@ -115,15 +115,15 @@ CommResponse_Identity::CommResponse_Identity (const char* identity,
 /******************************************************************/
 /******************************************************************/
 
-Comm& Comm::_ (void)
+Comm* Comm::get_singleton (void)
 {
-	static Comm o;
+	static auto o = new Comm;
 	return o;
 }
 
-Comm::Comm (void)
+Comm::Comm (void) : uart (UART::get_singleton())
 {
-	uart.setBaudrate (9600);
+	uart->setBaudrate (9600);
 }
 
 void Comm::check (void)
@@ -133,22 +133,22 @@ void Comm::check (void)
 
 void Comm::transmit (const QP4_Packet* packet)
 {
-	uart.write (packet, packet->size());
+	uart->write (packet, packet->size());
 }
 
 bool Comm::isBaudValid (uint32_t baudRate)
 {
-	return uart.isBaudValid (baudRate);
+	return uart->isBaudValid (baudRate);
 }
 
 void Comm::setBaudRate (uint32_t baudRate)
 {
-	uart.setBaudrate (baudRate);
+	uart->setBaudrate (baudRate);
 }
 
 void Comm::restore_default_baudrate (void)
 {
-	uart.setBaudrate (9600);
+	uart->setBaudrate (9600);
 }
 
 /******************************************************************/
@@ -156,11 +156,11 @@ void Comm::restore_default_baudrate (void)
 
 void Comm::checkReceiveQueue (void)
 {
-	const UART_RxBuffer* rx = uart.read();
+	const UART_RxBuffer* rx = uart->read();
 	processReceivedData (rx->data(), rx->size());
 }
 
-void Comm::processReceivedData  (const void* data, uint16_t size)
+void Comm::processReceivedData (const void* data, uint16_t size)
 {
 	const uint8_t* src = reinterpret_cast<const uint8_t*> (data);
 
@@ -1457,18 +1457,22 @@ void Comm::transmit_recSize (uint16_t recSize)
 
 /******************************************************************/
 
-void Comm::transmit_recData (uint16_t size, int32_t *recData)
+uint16_t Comm::transmit_recData (uint16_t size, const int32_t *recData)
 {
 	QP4_Packet* response =
 		qp4_.transmitter().alloc_packet (
 			sizeof (CommResponse_recData));
 
+    uint16_t transmit_size = (size < CommResponse_recData::max_data_length) ?
+        size: CommResponse_recData::max_data_length;
+
 	new (response->body())
-		CommResponse_recData (size, recData);
+		CommResponse_recData (transmit_size, recData);
 
 	response->seal();
 	transmit (response);
 	qp4_.transmitter().free_packet (response);
+    return transmit_size;
 }
 
 /******************************************************************/

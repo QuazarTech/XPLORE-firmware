@@ -1666,13 +1666,17 @@ private:
 class CommResponse_recData : public CommPacket_recData
 {
 public:
-	CommResponse_recData (uint16_t size, int32_t *recData) :
+	static constexpr uint16_t max_data_length = 64;
+
+public:
+	CommResponse_recData (uint16_t size, const int32_t *recData) :
 		size_ (std::hton (size)),
-		reserve_ (0)
+		reserve_ (0),
+		recData_ {0}
 	{
-		for (uint16_t i = 0; i < size_; ++i)
+		for (uint16_t i = 0; i < size; ++i)
 		{
-			recData_[i] = std::hton(recData_[i]);
+			recData_[i] = std::hton(recData[i]);
 		}
 	}
 
@@ -2507,10 +2511,11 @@ union CommCB_Union
 /******************************************************************/
 /******************************************************************/
 
+class UART;
 class Comm : public Applet
 {
 public:
-	static Comm& _ (void);
+	static Comm* get_singleton (void);
 
 public:
 	virtual void check (void);
@@ -2618,7 +2623,7 @@ public:
 	void transmit_changeBaud (uint32_t baudRate);
 
 	void transmit_recSize (uint16_t recSize);
-	void transmit_recData (uint16_t size, int32_t * recData);
+	uint16_t transmit_recData (uint16_t size, const int32_t * recData);
 	void transmit_StartRec (void);
 	void transmit_StopRec (void);
 
@@ -2706,10 +2711,10 @@ public:
 	void setBaudRate (uint32_t baudRate);
 	void restore_default_baudrate (void);
 
+private:
+	UART* uart;
 };
 
 /******************************************************************/
-
-#define appComm    Comm::_()
 
 #endif

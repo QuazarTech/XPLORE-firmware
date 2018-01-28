@@ -32,7 +32,7 @@ class LCD_FmtFlags
 class LCD
 {
 	public:
-	static LCD& _ (void); // Singleton declaration
+	static LCD* get_singleton (void); // Singleton declaration
 
 	public:
 	void home (void);
@@ -114,7 +114,5 @@ LCD& operator<< (LCD& str, const LCD_SetW& o);
 LCD& operator<< (LCD& str, const LCD_SetPrecision& o);
 
 /********************************************************************/
-
-#define lcd    LCD::_()
 
 #endif

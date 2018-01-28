@@ -1,8 +1,11 @@
+//	1) Set interrupt from rdy pin of ADC : TODO
+//	2) Select the ADC channel to read : Done in ADC_CHN
+//	3) Set the ADC in streaming mode : Done in AD7734::start()
+
+#include "app/Acquisition.h"
 #include <algorithm>
 #include <util/atomic.h>
 #include <avr/io.h>
-
-#include "app/Acquisition.h"
 
 /************************************************************************/
 
@@ -29,60 +32,41 @@
 /************************************************************************/
 /************************************************************************/
 
-Acquisition::Queue::Queue (void) :
-_overrun (false)
+Acquisition::Queue::Queue (uint16_t capacity) :
+	_capacity (capacity),
+	_size (0)
 {
-	//	1) Set interrupt from rdy pin of ADC : TODO
-	//	2) Select the ADC channel to read : Done in ADC_CHN
-	//	3) Set the ADC in streaming mode : Done in AD7734::start()
+	_values = (int32_t*) malloc (_capacity * sizeof (int32_t));
+	_begin = _end = _values;
 }
 
 /************************************************************************/
 
-void
-Acquisition::Queue::push_back (int32_t data)
+void Acquisition::Queue::push_back (int32_t data)
 {
-	if (full()) _overrun = true;
-	else base_type::push_back (data);
+	if (full()) return;
+	*_end = data;
+	if (++_end == _values + _capacity) _end = _values;
+	++_size;
 }
 
 /************************************************************************/
 
-void
-Acquisition::Queue::clear (void)
+void Acquisition::Queue::pop_front (void)
 {
-	base_type::clear();
-	_overrun = false;
-}
-
-/************************************************************************/
-/************************************************************************/
-
-Acquisition::
-Acquisition (void) :
-		_active_queue (new Queue),
-		_standby_queue (new Queue)
-	{}
-
-/************************************************************************/
-
-void Acquisition::data_ready_handler (void)
-{
-	_active_queue->push_back (_adc->readData (AD7734_DATA_REGISTER | ADC_CHN));
+	if (empty()) return;
+	int32_t ret = *_begin;
+	*_begin = 0;
+	if (++_begin == _values + _capacity) _begin = _values;
+	--_size;
 }
 
 /************************************************************************/
 
-void Acquisition::start (void)
+void Acquisition::Queue::clear (void)
 {
-	_adc->start(ADC_CHN);
-}
-
-/************************************************************************/
-
-void Acquisition::stop (void)
-{
-	_adc->stop();
+	while (!empty()) pop_front();
+	_begin = _end = _values;
 }
 
 /************************************************************************/
@@ -92,11 +76,74 @@ Acquisition::swap_queue (void)
 {
 	ATOMIC_BLOCK (ATOMIC_RESTORESTATE)
 	{
-		std::swap (_active_queue, _standby_queue);
+		auto x = _active_queue.release ();
+        auto y = _standby_queue.release ();
+        std::swap (x, y);
+        _active_queue.reset (x);
+        _standby_queue.reset (y);
 		_active_queue->clear();
 	}
 
-	return _standby_queue;
+	return _standby_queue.get();
+}
+
+/************************************************************************/
+/************************************************************************/
+
+Acquisition::
+Acquisition (void) :
+	_active_queue (new Queue(queue_size)),
+	_standby_queue (new Queue(queue_size))
+{}
+
+
+/************************************************************************/
+void Acquisition::check (void)
+{
+    //TODO
+    // Function of check of Acquisition applet:
+    // Check for data from the ADC and Add data to _active_queue
+	_active_queue->push_back (_adc->readData (AD7734_DATA_REGISTER | ADC_CHN));
+}
+
+/************************************************************************/
+
+void Acquisition::start (void)
+{
+	_adc->start(ADC_CHN);
+	_active = true;
+}
+
+/************************************************************************/
+
+void Acquisition::stop (void)
+{
+	_adc->stop();
+	_active = false;
+}
+
+/************************************************************************/
+
+const int32_t* Acquisition::recData (void)
+{
+	return _standby_queue->start ();
+}
+
+uint16_t Acquisition::recSize (void)
+{
+	if (_standby_queue->empty ()) swap_queue ();
+	return _standby_queue->size ();
+}
+
+void Acquisition::clearRecData (void)
+{
+	_standby_queue->clear();
+}
+
+void Acquisition::clearRecData (uint16_t size)
+{
+	while (size-- and  !_standby_queue->empty())
+		_standby_queue->pop_front();
 }
 
 /************************************************************************/

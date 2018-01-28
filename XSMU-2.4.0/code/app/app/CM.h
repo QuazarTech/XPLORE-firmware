@@ -2,9 +2,9 @@
 #define __CM__
 
 #include "app/Calibration.h"
-#include "utils/Filter.h"
 #include "sys/PCA9557.h"
 #include "sys/AD7734.h"
+#include "utils/Filter.h"
 #include <stdint.h>
 
 enum CM_Range
@@ -37,10 +37,12 @@ protected:
 // 	virtual void synchronize (void);
 };
 
+class Storage;
+
 class CM
 {
 public:
-	static CM& _ (void);
+	static CM* get_singleton (void);
 
 public:
 	const CM_Range& range (void) const {return range_;}
@@ -79,8 +81,8 @@ private:
 
 	void fillDefaultCalibration (float I_FS,
 								 CM_CalibrationTable* calibration);
+private:
+    Storage* storage;
 };
-
-#define modCM    CM::_()
 
 #endif

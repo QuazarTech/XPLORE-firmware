@@ -6,7 +6,7 @@
 class EEPROM
 {
 public:
-	static EEPROM& _ (void);
+	static EEPROM* get_singleton (void);
 
 public:
 	uint16_t read  (uint16_t address, void* data,       uint16_t size);
@@ -19,7 +19,5 @@ private:
 private:
 	EEPROM (void);
 };
-
-#define eeprom    EEPROM::_()
 
 #endif
