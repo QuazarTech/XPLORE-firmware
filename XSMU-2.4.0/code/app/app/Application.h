@@ -11,6 +11,7 @@
 #include "app/LEDDisplay.h"
 #include "app/Comm.h"
 #include "sys/SysTick.h"
+#include "app/Acquisition.h"
 #include <memory>
 #include <cstdlib>
 
@@ -149,7 +150,7 @@ private:
 	SysTick::tick_t offline_at_;
 
 private:
-//	std::unique_ptr<Acquisition> _acq;
+	std::unique_ptr<Acquisition> _acq;
 	bool _acquiring;
 
 private:

@@ -9,14 +9,11 @@
 
 /************************************************************************/
 
-#define AD7734_DATA_REGISTER               0x08
-
-#define ADC_CHN                            1
-
 // PD4 -> DIO0 -> AI1 -> CS
-#define ADC_SELECT_BIT                     4
-#define ADC_SELECT_DDR                     DDRD
 #define ADC_SELECT_PORT                    PORTD
+#define ADC_SELECT_DDR                     DDRD
+#define ADC_SELECT_BIT                     4
+
 #define ADC_SELECT_MASK                   (1 << ADC_SELECT_BIT)
 #define ADC_SELECT_DDR_OUT                (1 << ADC_SELECT_BIT)
 #define ADC_SELECT_LOW                    (0 << ADC_SELECT_BIT)
@@ -96,21 +93,10 @@ Acquisition (void) :
 	_standby_queue (new Queue(queue_size))
 {}
 
-
-/************************************************************************/
-void Acquisition::check (void)
-{
-    //TODO
-    // Function of check of Acquisition applet:
-    // Check for data from the ADC and Add data to _active_queue
-	_active_queue->push_back (_adc->readData (AD7734_DATA_REGISTER | ADC_CHN));
-}
-
 /************************************************************************/
 
 void Acquisition::start (void)
 {
-	_adc->start(ADC_CHN);
 	_active = true;
 }
 
@@ -118,7 +104,6 @@ void Acquisition::start (void)
 
 void Acquisition::stop (void)
 {
-	_adc->stop();
 	_active = false;
 }
 
@@ -129,16 +114,22 @@ const int32_t* Acquisition::recData (void)
 	return _standby_queue->start ();
 }
 
+/************************************************************************/
+
 uint16_t Acquisition::recSize (void)
 {
 	if (_standby_queue->empty ()) swap_queue ();
 	return _standby_queue->size ();
 }
 
+/************************************************************************/
+
 void Acquisition::clearRecData (void)
 {
 	_standby_queue->clear();
 }
+
+/************************************************************************/
 
 void Acquisition::clearRecData (uint16_t size)
 {
@@ -152,26 +143,30 @@ void Acquisition::clearRecData (uint16_t size)
 Acquisition::AD7734_Streamer::
 AD7734_Streamer (void)
 {
-	initialize();
+	initialize(); //initializeInterface(), resetLow(), selectHigh()
 }
 
 void Acquisition::AD7734_Streamer::
 initializeInterface (void)
 {
-	ADC_SELECT_DDR = (ADC_SELECT_DDR & ~ADC_SELECT_MASK) | ADC_SELECT_DDR_OUT;
-	ADC_DRDY_DDR   = (ADC_DRDY_DDR   & ~ADC_DRDY_MASK  ) | ADC_DRDY_DDR_IN;
-// 	ADC_SYNC_DDR   = (ADC_SYNC_DDR   & ~ADC_SYNC_MASK  ) | ADC_SYNC_DDR_IN;
+    // Configure PORTD4 (connected to ADC CS) as output(1)
+    ADC_SELECT_DDR = (ADC_SELECT_DDR & ~ADC_SELECT_MASK) | ADC_SELECT_DDR_OUT;
+
+    // Configure PORTD5 (connected to ADC RDY) as input(0)
+    ADC_DRDY_DDR = (ADC_DRDY_DDR & ~ADC_DRDY_MASK) | ADC_DRDY_DDR_IN;
 }
 
 void Acquisition::AD7734_Streamer::
 selectLow (void)
 {
+    //Enable Chip Select for AD7734 ADC
 	ADC_SELECT_PORT = (ADC_SELECT_PORT & ~ADC_SELECT_MASK) | ADC_SELECT_LOW;
 }
 
 void Acquisition::AD7734_Streamer::
 selectHigh (void)
 {
+    //Disable Chip Select for AD7734 ADC
 	ADC_SELECT_PORT = (ADC_SELECT_PORT & ~ADC_SELECT_MASK) | ADC_SELECT_HIGH;
 }
 
@@ -182,6 +177,3 @@ resetLow (void)
 void Acquisition::AD7734_Streamer::
 resetHigh (void)
 {}
-
-/************************************************************************/
-/************************************************************************/

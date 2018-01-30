@@ -16,33 +16,35 @@
 class Acquisition : public Applet
 {
 public:
-    virtual void check (void);
+    virtual void check (void) {}
 
 public:
-	static constexpr uint16_t queue_size = 64;
+    static constexpr uint16_t queue_size = 64;
 	class Queue;
-	class AD7734_Streamer;
-	Acquisition (void);
+    class AD7734_Streamer;
 
 public:
-	void start (void);
+    Acquisition (void);
+
+public:
+    void start (void);
 	void stop (void);
-	Queue* swap_queue (void);
+    Queue* swap_queue (void);
 
 public:
 	uint16_t recSize (void);
-	const int32_t* recData (void);
+    const int32_t* recData (void);
 	void clearRecData (void);
 	void clearRecData (uint16_t size);
 
 private:
-	std::unique_ptr<Queue> _active_queue;
+    std::unique_ptr<Queue> _active_queue;
 	std::unique_ptr<Queue> _standby_queue;
-	bool _queue_overrun;
-	bool _active;
+    bool _active;
 
 private:
 	AD7734_Streamer* _adc;
+
 };
 
 /************************************************************************/
@@ -75,6 +77,7 @@ private:
 
 /************************************************************************/
 /************************************************************************/
+
 
 class Acquisition::AD7734_Streamer : public AD7734
 {

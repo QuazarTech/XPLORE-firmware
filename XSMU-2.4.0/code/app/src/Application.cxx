@@ -20,6 +20,7 @@ Application::Application (void) :
 	displayResumeAt_ (0),
 	online_          (false),
 	offline_at_      (0),
+	_acq (nullptr),
 	_acquiring (false),
 	lcd (LCD::get_singleton()),
 	modCS (CS::get_singleton()),
@@ -747,8 +748,8 @@ void Application::recSizeCB (const CommCB* oCB)
 {
 	const CommCB_recSize* o =
 		reinterpret_cast<const CommCB_recSize*> (oCB);
-	//uint16_t size = _acq ? _acq->recSize () : 0;
-    uint16_t size = 4;
+	uint16_t size = _acq ? _acq->recSize () : 0;
+    //uint16_t size = 4;
 	appComm->transmit_recSize (size);
 }
 
@@ -761,11 +762,12 @@ void Application::recDataCB (const CommCB* oCB)
 
 	uint16_t size = o->size(); //_acq ? _acq->recSize () : 0;
 
-	//const int32_t* data = (size > 0) ? _acq->recData() : NULL;
-	//_acq->clearRecData (appComm->transmit_recData (size, data));
+ 	const int32_t* data = (size > 0) ? _acq->recData() : NULL;
 
-    int32_t array[3] = {32, 44, 22};
-    uint16_t tx_size = appComm->transmit_recData (size, array);
+    uint16_t tx_size = appComm->transmit_recData (size, data);
+ 	_acq->clearRecData (tx_size);
+
+    //int32_t array[3] = {32, 44, 22};
 
     char str[16];
     itoa(tx_size, str, 10);
@@ -778,7 +780,7 @@ void Application::recDataCB (const CommCB* oCB)
 void Application::StartRecCB (const CommCB* oCB)
 {
 	//TODO : Start Recording
-	//_acq.reset (new Acquisition);
+	_acq.reset (new Acquisition);
 	//_acq->start();
 
     _acquiring = true;
@@ -799,7 +801,7 @@ void Application::StopRecCB (const CommCB* oCB)
 
     //TODO : Stop Recording
     //_acq->stop();
-    //_acq.reset(nullptr);
+    _acq.reset(nullptr);
 
     appComm->transmit_StopRec();
 }
@@ -883,7 +885,6 @@ void Application::check (void)
 
 //     else if (!online_)
 //     {
-//         displayGen ("Not", "Online");
 //         modCM->check();
 //         modVM->check();
 //
