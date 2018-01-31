@@ -748,8 +748,8 @@ void Application::recSizeCB (const CommCB* oCB)
 {
 	const CommCB_recSize* o =
 		reinterpret_cast<const CommCB_recSize*> (oCB);
-	uint16_t size = _acq ? _acq->recSize () : 0;
-    //uint16_t size = 4;
+
+    uint16_t size = _acq ? _acq->recSize () : 0;
 	appComm->transmit_recSize (size);
 }
 
@@ -781,7 +781,7 @@ void Application::StartRecCB (const CommCB* oCB)
 {
 	//TODO : Start Recording
 	_acq.reset (new Acquisition);
-	//_acq->start();
+	_acq->start();
 
     _acquiring = true;
 
@@ -800,7 +800,7 @@ void Application::StopRecCB (const CommCB* oCB)
     _acquiring = false;
 
     //TODO : Stop Recording
-    //_acq->stop();
+    _acq->stop();
     _acq.reset(nullptr);
 
     appComm->transmit_StopRec();
@@ -865,38 +865,42 @@ void Application::check (void)
 
     if (online_)
     {
-        //displayGen ("XSMU", "Online");
         if (_acquiring)
         {
-            //_acq->check ();
+            _acq->check ();
             displayGen ("    Online :    ", "    Acquiring   ");
-            _delay_ms (1000);
         }
         else
         {
-            displayGen ("    Online :    ", "  Not Acquiring ");
+            modCM->check();
+            modVM->check();
+
+            if (modCM->data_ready() && modVM->data_ready()) {
+
+                const float I = modCM->readCurrent();
+                const float V = modVM->readVoltage();
+
+                if (!localDisplayFrozen())
+                    displayIV (true, I, modCM->range(), true, V, modVM->range());
+            }
         }
     }
-    else
-    {
-        displayGen ("    Offline     ", "                ");
-        _delay_ms (1000);
-    }
 
-//     else if (!online_)
-//     {
-//         modCM->check();
-//         modVM->check();
-//
-//         if (modCM->data_ready() && modVM->data_ready()) {
-//
-//             const float I = modCM->readCurrent();
-//             const float V = modVM->readVoltage();
-//
-//             if (!localDisplayFrozen())
-//                 displayIV (true, I, modCM->range(), true, V, modVM->range());
-//         }
-//     }
+
+    else if (!online_)
+    {
+        modCM->check();
+        modVM->check();
+
+        if (modCM->data_ready() && modVM->data_ready()) {
+
+            const float I = modCM->readCurrent();
+            const float V = modVM->readVoltage();
+
+            if (!localDisplayFrozen())
+                displayIV (true, I, modCM->range(), true, V, modVM->range());
+        }
+    }
 }
 
 /************************************************************************/

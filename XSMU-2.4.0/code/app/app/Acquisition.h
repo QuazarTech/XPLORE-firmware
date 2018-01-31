@@ -16,7 +16,7 @@
 class Acquisition : public Applet
 {
 public:
-    virtual void check (void) {}
+    virtual void check (void);
 
 public:
     static constexpr uint16_t queue_size = 64;
@@ -36,6 +36,7 @@ public:
     const int32_t* recData (void);
 	void clearRecData (void);
 	void clearRecData (uint16_t size);
+    bool data_ready (void);
 
 private:
     std::unique_ptr<Queue> _active_queue;
@@ -91,6 +92,7 @@ protected:
 	virtual void resetLow (void);
 	virtual void resetHigh (void);
 
+    virtual bool data_ready (void);
 	virtual void initializeInterface (void);
 
 };

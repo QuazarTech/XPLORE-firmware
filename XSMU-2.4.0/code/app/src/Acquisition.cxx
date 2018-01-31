@@ -8,6 +8,9 @@
 #include <avr/io.h>
 
 /************************************************************************/
+#define AD7734_DATA_REGISTER               0x08
+
+#define ADC_CHN                            1
 
 // PD4 -> DIO0 -> AI1 -> CS
 #define ADC_SELECT_PORT                    PORTD
@@ -95,8 +98,20 @@ Acquisition (void) :
 
 /************************************************************************/
 
+void Acquisition::check (void)
+/*
+ * Keep adding datapoints from the ADC queue into the _active_queue
+ */
+{
+    ATOMIC_BLOCK (ATOMIC_RESTORESTATE)
+	{
+        //_active_queue->push_back(_adc->readData(AD7734_DATA_REGISTER | ADC_CHN));
+    }
+}
+
 void Acquisition::start (void)
 {
+    //_adc->start(ADC_CHN);
 	_active = true;
 }
 
@@ -104,6 +119,7 @@ void Acquisition::start (void)
 
 void Acquisition::stop (void)
 {
+    //_adc->stop();
 	_active = false;
 }
 
@@ -111,14 +127,13 @@ void Acquisition::stop (void)
 
 const int32_t* Acquisition::recData (void)
 {
-	return _standby_queue->start ();
+	return _standby_queue->start();
 }
 
 /************************************************************************/
 
 uint16_t Acquisition::recSize (void)
 {
-	if (_standby_queue->empty ()) swap_queue ();
 	return _standby_queue->size ();
 }
 
@@ -137,6 +152,24 @@ void Acquisition::clearRecData (uint16_t size)
 		_standby_queue->pop_front();
 }
 
+/************************************************************************/
+
+bool Acquisition::data_ready (void)
+/*
+ * Checks if datapoints are available in either of the queues
+ * Returns false if both _active_queue and _standby_queue are empty
+ */
+{
+    if (_standby_queue->empty ())
+    {
+        swap_queue ();
+        if (_standby_queue->empty())
+        {
+            return false;
+        }
+    }
+    return true;
+}
 /************************************************************************/
 /************************************************************************/
 
@@ -177,3 +210,9 @@ resetLow (void)
 void Acquisition::AD7734_Streamer::
 resetHigh (void)
 {}
+
+bool Acquisition::AD7734_Streamer::
+data_ready (void)
+{
+	return (ADC_DRDY_PORT & ADC_DRDY_MASK) ? false : true;
+}
