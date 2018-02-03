@@ -749,7 +749,7 @@ void Application::recSizeCB (const CommCB* oCB)
 	const CommCB_recSize* o =
 		reinterpret_cast<const CommCB_recSize*> (oCB);
 
-    uint16_t size = _acq ? _acq->recSize () : 0;
+    uint16_t size = ((_acq) && (_acq->data_ready())) ? _acq->recSize () : 0;
 	appComm->transmit_recSize (size);
 }
 
@@ -766,13 +766,6 @@ void Application::recDataCB (const CommCB* oCB)
 
     uint16_t tx_size = appComm->transmit_recData (size, data);
  	_acq->clearRecData (tx_size);
-
-    //int32_t array[3] = {32, 44, 22};
-
-    char str[16];
-    itoa(tx_size, str, 10);
-    displayGen ("   Rec Size :   ", str);
-    _delay_ms (1000);
 }
 
 /*************************************************************************/

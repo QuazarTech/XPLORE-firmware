@@ -93,7 +93,8 @@ Acquisition::swap_queue (void)
 Acquisition::
 Acquisition (void) :
 	_active_queue (new Queue(queue_size)),
-	_standby_queue (new Queue(queue_size))
+	_standby_queue (new Queue(queue_size)),
+	_adc (new AD7734_Streamer())
 {}
 
 /************************************************************************/
@@ -105,13 +106,13 @@ void Acquisition::check (void)
 {
     ATOMIC_BLOCK (ATOMIC_RESTORESTATE)
 	{
-        //_active_queue->push_back(_adc->readData(AD7734_DATA_REGISTER | ADC_CHN));
+        _active_queue->push_back(_adc->readData(AD7734_DATA_REGISTER | ADC_CHN));
     }
 }
 
 void Acquisition::start (void)
 {
-    //_adc->start(ADC_CHN);
+    _adc->start(ADC_CHN);
 	_active = true;
 }
 
@@ -119,7 +120,7 @@ void Acquisition::start (void)
 
 void Acquisition::stop (void)
 {
-    //_adc->stop();
+    _adc->stop();
 	_active = false;
 }
 
