@@ -13,7 +13,8 @@ SRC = \
 	VS.cxx \
 	LEDDisplay.cxx \
 	RM.cxx \
-	SystemConfig.cxx
+	SystemConfig.cxx \
+	Acquisition.cxx \
 
 DEP = $(SRC:%.cxx=%.dep)
 ASM = $(SRC:%.cxx=%.s)

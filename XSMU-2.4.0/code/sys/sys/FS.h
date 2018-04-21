@@ -2,6 +2,7 @@
 #define __FS__
 
 #include <stdint.h>
+#include "avr/EEPROM.h"
 
 struct FS_FATEntry
 {
@@ -33,6 +34,7 @@ private:
 
 private:
 	uint16_t calculateChecksum (const void* data, uint16_t size);
+	EEPROM* eeprom;
 };
 
 #endif

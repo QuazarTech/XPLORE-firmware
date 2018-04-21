@@ -17,9 +17,9 @@
 #define EEPROM_RD                   (1 << EERE)
 #define EEPROM_MASTER_WR_ENABLE     (1 << EEMWE)
 
-EEPROM& EEPROM::_ (void)
+EEPROM* EEPROM::get_singleton (void)
 {
-	static EEPROM o;
+	static auto o = new EEPROM;
 	return o;
 }
 

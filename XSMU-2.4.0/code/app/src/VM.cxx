@@ -1,12 +1,11 @@
-#include "app/VM.h"
-#include "app/Storage.h"
-// #include "sys/hardware.h"
-
 #include <cmath>
+//#include <util/delay.h>
 #include <avr/io.h>
-// #include <util/delay.h>
-
 #include "pgmspace"
+
+#include "app/Storage.h"
+#include "app/VM.h"
+#include "sys/hardware.h"
 
 using namespace std;
 
@@ -155,16 +154,17 @@ VM_Terminal toVM_Terminal (uint16_t i)
 
 /*********************************************************************/
 
-VM& VM::_ (void)
+VM* VM::get_singleton (void)
 {
-	static VM o;
+	static auto o = new VM;
 	return o;
 }
 
 VM::VM (void) :
 	iox_ (IOX_ADDR),
 	filter_ (16),
-	iox2_ (IOX2_ADDR)
+	iox2_ (IOX2_ADDR),
+	storage (Storage::get_singleton())
 {
 	iox_.setPinDirection (
 		(iox_.getPinDirection() & ~IOX_MASK) | IOX_DIR);
@@ -189,7 +189,7 @@ void VM::setRange (VM_Range range)
 {
 	range_ = range;
 
-	if (storage.read (toStorage_VM_FileNo (range), &calibration_) !=
+	if (storage->read (toStorage_VM_FileNo (range), &calibration_) !=
 		sizeof (calibration_)) {
 
 			fillDefaultCalibration (range, &calibration_);
@@ -292,7 +292,7 @@ void VM::setCalibration (uint16_t index, float voltage)
 
 void VM::saveCalibration (void)
 {
-	storage.write (toStorage_VM_FileNo (range()), &calibration_);
+	storage->write ((uint16_t) toStorage_VM_FileNo (range()), &calibration_);
 }
 
 /*********************************************************************/
@@ -323,13 +323,9 @@ void VM::setTerminal (VM_Terminal terminal)
 	terminal_ = terminal;
 }
 
-/*********************************************************************
-
-void VM::setTerminal (VM_Terminal terminal)
-{
-	iox_.writeOutputPortRegister (
-		(iox_.readOutputPortRegister() & 0b11101111) |
-			(uint16_t) terminal << 4);
-}
-
-/*********************************************************************/
+// void VM::setTerminal (VM_Terminal terminal)
+// {
+// 	iox_.writeOutputPortRegister (
+// 		(iox_.readOutputPortRegister() & 0b11101111) |
+// 			(uint16_t) terminal << 4);
+// }

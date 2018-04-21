@@ -15,6 +15,7 @@ class Applet
 {
 	public:
 	Applet (void);
+	virtual ~Applet (void);
 
 	public:
 	void do_callback (const void* app_data);
@@ -28,8 +29,7 @@ class Applet
 	virtual void check (void) {};
 
 	private:
-	static bool first_;
-	static std::vector<Applet*, APPLET_UPPER_BOUND> applets_;
+	static Applet* applets_[APPLET_UPPER_BOUND];
 
 	private:
 	void* user_data_;

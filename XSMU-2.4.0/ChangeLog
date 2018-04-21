@@ -1,3 +1,126 @@
+####################################################
+#
+#  ^^ Means updated
+#  ++ Means added
+#  -- Means deleted
+#
+####################################################
+
+### 2.4.0
+
+2017-09-16  Gitansh Kataria  <gitansh@quazartech.com>
+
+* Feature: A transmit_nop feature is implamented
+
+* Comm.h/Comm.cxx:
+
+	++ class CommPacket_nop
+		++ class CommRequest_nop
+		++ class CommResponse_nop
+
+	++ void transmit_nop()
+
+
+### 2.4.0
+
+2017-09-14  Gitansh Kataria  <gitansh@quazartech.com>
+
+* Feature: A command keepAlive is added to keep firmware streaming
+
+* UART.h/UART.cxx:
+
+	^^ setBaudRate  (uint32_t baudRate);
+	++ _setBaudRate (uint32_t baudRate);
+
+	++ bool isBaudValid (uint32_t baudRate);
+
+* Comm.h/Comm.cxx:
+
+	^^ COMM_OPCODE
+		-- COMM_OPCODE_SYNC
+		++ COMM_OPCODE_KEEP_ALIVE
+
+	-- class CommPacket_Synchronize
+		-- class CommRequest_Synchronize
+		-- class CommResponse_Synchronize
+
+	++ class CommPacket_keepAlive
+		++ class CommRequest_keepAlive
+		++ class CommResponse_keepAlive
+
+	^^ COMM_CBCODE
+		-- COMM_CBCODE_SYNC
+		++ COMM_CBCODE_KEEP_ALIVE
+
+	-- class CommCB_Sync
+	++ class CommCB_keepAlive
+
+	^^ union CommCB_Union
+		-- char gen2 [sizeof (CommCB_Sync)]
+		++ char gen2 [sizeof (CommCB_keepAlive)]
+
+	^^ class Comm : public Applet
+		-- void SyncCB       (void* uint16_t)
+		++ void keepAlive_CB (void*, uint16_t)
+
+		++ void transmit_keepAlive (uint32_t)
+
+		++ void setBaudRate (uint32_t)
+		++ bool isBaudValid (uint32_t baudRate);
+
+* Application.h/Application.cxx:
+
+	++ bool online_
+	++ SysTick::tick_t offline_at_
+
+	++ void go_offline (void)
+	++ void go_online (uint32_t)
+	++ void check_alive (void)
+
+	++ is_online (void)
+	++ is_offline (void)
+
+	-- void syncCB      (const CommCB* oCB);
+	++ void keepAliveCB (const CommCB* oCB);
+
+
+### 2.4.0
+
+2017-09-13  Gitansh Kataria  <gitansh@quazartech.com>
+
+* Feature: A command to change baud-rate is added.
+
+* Application.h/Application.cxx:
+
+	++ void changeBaudCB     (const CommCB* oCB);
+
+### 2.4.0
+
+2017-09-11  Gitansh Kataria  <gitansh@quazartech.com>
+
+* Feature: A command to change baud-rate is added.
+
+* Comm.h/Comm.cxx:
+
+	^^ COMM_OPCODE
+		++ COMM_OPCODE_CHANGE_BAUD
+
+	++ class CommPacket_ChangeBaud
+		++ class CommRequest_ChangeBaud
+		++ class CommResponse_ChangeBaud
+
+	^^ COMM_CBCODE
+		++ COMM_CBCODE_CHANGE_BAUD
+
+	++ class CommCB_ChangeBaud
+
+	^^ union CommCB_Union
+		++ char gen4 [sizeof (CommCB_ChangeBaud)]
+
+	^^ class Comm : public Applet
+		++ void changeBaud_CB (void*, uint16_t)
+		++ void transmit_changeBaud (uint32_t)
+
 ------------------------------------------------------------------------
 r40 | (no author) | 2014-03-29 18:57:25 +0530 (Sat, 29 Mar 2014) | 6 lines
 

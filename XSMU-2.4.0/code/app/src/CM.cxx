@@ -1,12 +1,10 @@
 #include "app/CM.h"
 #include "app/Storage.h"
-// #include "sys/hardware.h"
 
 #include <cmath>
 #include <avr/io.h>
-// #include <util/delay.h>
-
 #include "pgmspace"
+
 #include "app/SystemConfig.h"
 #include "app/firmware_version.h"
 
@@ -99,10 +97,12 @@ bool AD7734_CM::data_ready (void)
 
 int32_t AD7734_CM::read (void)
 {
+	auto system_config = SystemConfig::get_singleton();
+
 	const uint32_t hardware_version =
-		MAKE_VERSION (system_config.hwBoardNo(),
-					  system_config.hwBomNo(),
-					  system_config.hwBugfixNo());
+		MAKE_VERSION (system_config->hwBoardNo(),
+					  system_config->hwBomNo(),
+					  system_config->hwBugfixNo());
 
 	if (hardware_version < MAKE_VERSION (3,0,0))
 			return AD7734::read (ADC_CHN);
@@ -129,15 +129,16 @@ CM_Range toCM_Range (uint16_t i)
 
 /*********************************************************************/
 
-CM& CM::_ (void)
+CM* CM::get_singleton (void)
 {
-	static CM o;
+	static auto o = new CM;
 	return o;
 }
 
 CM::CM (void) :
 	iox_ (0),
-	filter_ (16)
+	filter_ (16),
+	storage (Storage::get_singleton())
 {
 	iox_.setPinDirection (
 		(iox_.getPinDirection() & ~IOX_RANGE_MASK) | IOX_RANGE_DIR);
@@ -154,7 +155,7 @@ void CM::setRange (CM_Range range)
 {
 	range_ = range;
 
-	if (storage.read (toStorage_CM_FileNo (range), &calibration_) !=
+	if (storage->read (toStorage_CM_FileNo (range), &calibration_) !=
 		sizeof (calibration_)) {
 
 			fillDefaultCalibration (range, &calibration_);
@@ -237,7 +238,7 @@ void CM::setCalibration (uint16_t index, float current)
 
 void CM::saveCalibration (void)
 {
-	storage.write (toStorage_CM_FileNo (range()), &calibration_);
+	storage->write (toStorage_CM_FileNo (range()), &calibration_);
 }
 
 /*********************************************************************/

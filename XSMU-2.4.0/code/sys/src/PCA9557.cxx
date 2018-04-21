@@ -1,8 +1,8 @@
 #include "sys/PCA9557.h"
-#include "avr/I2C.h"
 
 PCA9557::PCA9557 (uint8_t deviceAddress) :
-    deviceAddress_ (deviceAddress)
+    deviceAddress_ (deviceAddress),
+    i2c (I2C::get_singleton())
 {}
 
 const uint8_t &PCA9557::deviceAddress (void) const
@@ -22,7 +22,7 @@ uint8_t PCA9557::readInputPortRegister (void) const
 	uint8_t data;
 	const uint8_t controlValue = 0x00;
 
-	i2c.write_n_read (completeDeviceAddress(),
+	i2c->write_n_read (completeDeviceAddress(),
 					  &controlValue, sizeof (controlValue),
 					  &data, sizeof (data));
 
@@ -32,7 +32,7 @@ uint8_t PCA9557::readInputPortRegister (void) const
 void PCA9557::writeOutputPortRegister (uint8_t portval)
 {
 	const uint8_t data[] = {0x01, portval};
-	i2c.write (completeDeviceAddress(), data, sizeof (data));
+	i2c->write (completeDeviceAddress(), data, sizeof (data));
 }
 
 uint8_t PCA9557::readOutputPortRegister (void) const
@@ -40,7 +40,7 @@ uint8_t PCA9557::readOutputPortRegister (void) const
 	uint8_t data;
 	const uint8_t controlValue = 0x01;
 
-	i2c.write_n_read (completeDeviceAddress(),
+	i2c->write_n_read (completeDeviceAddress(),
 					  &controlValue, sizeof (controlValue),
 					  &data, sizeof (data));
 
@@ -54,7 +54,7 @@ uint8_t PCA9557::getPinPolarity (void) const
 	uint8_t polarity;
 	const uint8_t controlValue = 0x02;
 
-	i2c.write_n_read (completeDeviceAddress(),
+	i2c->write_n_read (completeDeviceAddress(),
 					  &controlValue, sizeof (controlValue),
 					  &polarity, sizeof (polarity));
 
@@ -64,7 +64,7 @@ uint8_t PCA9557::getPinPolarity (void) const
 void PCA9557::setPinPolarity (uint8_t polarity)
 {
 	const uint8_t data[] = {0x02, polarity};
-	i2c.write (completeDeviceAddress(), data, sizeof (data));
+	i2c->write (completeDeviceAddress(), data, sizeof (data));
 }
 
 /*************************************************************/
@@ -74,7 +74,7 @@ uint8_t PCA9557::getPinDirection (void) const
 	uint8_t direction;
 	const uint8_t controlValue = 0x03;
 
-	i2c.write_n_read (completeDeviceAddress(),
+	i2c->write_n_read (completeDeviceAddress(),
 					  &controlValue, sizeof (controlValue),
 					  &direction, sizeof (direction));
 
@@ -84,7 +84,7 @@ uint8_t PCA9557::getPinDirection (void) const
 void PCA9557::setPinDirection (uint8_t direction)
 {
 	const uint8_t data[] = {0x03, direction};
-	i2c.write (completeDeviceAddress(), data, sizeof (data));
+	i2c->write (completeDeviceAddress(), data, sizeof (data));
 }
 
 /*************************************************************/

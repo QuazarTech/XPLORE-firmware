@@ -9,7 +9,7 @@ public:
 	typedef uint32_t tick_t;
 
 public:
-	static SysTick& _ (void);
+	static SysTick* get_singleton (void);
 
 public:
 	tick_t get (void) const;
@@ -23,7 +23,5 @@ private:
 	SysTick (void);
 	double interval_;
 };
-
-#define systick    SysTick::_()
 
 #endif

@@ -115,15 +115,15 @@ CommResponse_Identity::CommResponse_Identity (const char* identity,
 /******************************************************************/
 /******************************************************************/
 
-Comm& Comm::_ (void)
+Comm* Comm::get_singleton (void)
 {
-	static Comm o;
+	static auto o = new Comm;
 	return o;
 }
 
-Comm::Comm (void)
+Comm::Comm (void) : uart (UART::get_singleton())
 {
-	uart.setBaudrate (9600);
+	uart->setBaudrate (9600);
 }
 
 void Comm::check (void)
@@ -133,7 +133,22 @@ void Comm::check (void)
 
 void Comm::transmit (const QP4_Packet* packet)
 {
-	uart.write (packet, packet->size());
+	uart->write (packet, packet->size());
+}
+
+bool Comm::isBaudValid (uint32_t baudRate)
+{
+	return uart->isBaudValid (baudRate);
+}
+
+void Comm::setBaudRate (uint32_t baudRate)
+{
+	uart->setBaudrate (baudRate);
+}
+
+void Comm::restore_default_baudrate (void)
+{
+	uart->setBaudrate (9600);
 }
 
 /******************************************************************/
@@ -141,7 +156,7 @@ void Comm::transmit (const QP4_Packet* packet)
 
 void Comm::checkReceiveQueue (void)
 {
-	const UART_RxBuffer* rx = uart.read();
+	const UART_RxBuffer* rx = uart->read();
 	processReceivedData (rx->data(), rx->size());
 }
 
@@ -171,53 +186,59 @@ void Comm::interpret (const void* data, uint16_t size)
 
 	static const cb_t cbs[] PROGMEM =
 	{
-		&Comm::nopCB,                         //00                      
-		&Comm::identityCB,                    //01                            
-		&Comm::syncCB,                        //02                           
-		&Comm::setSourceModeCB,               //03                         
-		&Comm::CS_setRangeCB,                 //04                   
-		&Comm::CS_getCalibrationCB,           //05                      
-		&Comm::CS_verifyCalibrationCB,        //06                        
-		&Comm::CS_setCalibrationCB,           //07                       
-		&Comm::CS_saveCalibrationCB,          //08                      
+		&Comm::nopCB,                         //00
+		&Comm::identityCB,                    //01
+		&Comm::keepAliveCB,                   //02
+		&Comm::setSourceModeCB,               //03
+		&Comm::CS_setRangeCB,                 //04
+		&Comm::CS_getCalibrationCB,           //05
+		&Comm::CS_verifyCalibrationCB,        //06
+		&Comm::CS_setCalibrationCB,           //07
+		&Comm::CS_saveCalibrationCB,          //08
 		&Comm::CS_setCurrentCB,               //09
 
-		&Comm::VS_setRangeCB,                 //10                    
-		&Comm::VS_getCalibrationCB,           //11                       
-		&Comm::VS_verifyCalibrationCB,        //12                             
-		&Comm::VS_setCalibrationCB,           //13                         
-		&Comm::VS_saveCalibrationCB,          //14                      
-		&Comm::VS_setVoltageCB,               //15                    
-		&Comm::CM_setRangeCB,                 //16                    
-		&Comm::CM_getCalibrationCB,           //17                       
-		&Comm::CM_setCalibrationCB,           //18                      
-		&Comm::CM_saveCalibrationCB,          //19                       
-		
-		&Comm::CM_readCB,                     //20                
-		&Comm::VM_setRangeCB,                 //21                   
-		&Comm::VM_getCalibrationCB,           //22                      
-		&Comm::VM_setCalibrationCB,           //23                      
-		&Comm::VM_saveCalibrationCB,          //24                     
-		&Comm::VM_readCB,                     //25               
-		&Comm::CS_loadDefaultCalibrationCB,   //26                  
-		&Comm::VS_loadDefaultCalibrationCB,   //27                  
-		&Comm::CM_loadDefaultCalibrationCB,   //28                        
-		&Comm::VM_loadDefaultCalibrationCB,   //29                        
-		
-		&Comm::RM_readAutoscaleCB,            //30               
-		&Comm::SystemConfig_GetCB,            //31               
-		&Comm::SystemConfig_SetCB,            //32               
-		&Comm::SystemConfig_SaveCB,           //33               
-		&Comm::SystemConfig_LoadDefaultCB,    //34                  
-		&Comm::VM2_setRangeCB,                //35           
-		&Comm::VM2_getCalibrationCB,          //36                
-		&Comm::VM2_setCalibrationCB,          //37               
-		&Comm::VM2_saveCalibrationCB,         //38            
-		&Comm::VM2_readCB,                    //39            
-		
+		&Comm::VS_setRangeCB,                 //10
+		&Comm::VS_getCalibrationCB,           //11
+		&Comm::VS_verifyCalibrationCB,        //12
+		&Comm::VS_setCalibrationCB,           //13
+		&Comm::VS_saveCalibrationCB,          //14
+		&Comm::VS_setVoltageCB,               //15
+		&Comm::CM_setRangeCB,                 //16
+		&Comm::CM_getCalibrationCB,           //17
+		&Comm::CM_setCalibrationCB,           //18
+		&Comm::CM_saveCalibrationCB,          //19
+
+		&Comm::CM_readCB,                     //20
+		&Comm::VM_setRangeCB,                 //21
+		&Comm::VM_getCalibrationCB,           //22
+		&Comm::VM_setCalibrationCB,           //23
+		&Comm::VM_saveCalibrationCB,          //24
+		&Comm::VM_readCB,                     //25
+		&Comm::CS_loadDefaultCalibrationCB,   //26
+		&Comm::VS_loadDefaultCalibrationCB,   //27
+		&Comm::CM_loadDefaultCalibrationCB,   //28
+		&Comm::VM_loadDefaultCalibrationCB,   //29
+
+		&Comm::RM_readAutoscaleCB,            //30
+		&Comm::SystemConfig_GetCB,            //31
+		&Comm::SystemConfig_SetCB,            //32
+		&Comm::SystemConfig_SaveCB,           //33
+		&Comm::SystemConfig_LoadDefaultCB,    //34
+		&Comm::VM2_setRangeCB,                //35
+		&Comm::VM2_getCalibrationCB,          //36
+		&Comm::VM2_setCalibrationCB,          //37
+		&Comm::VM2_saveCalibrationCB,         //38
+		&Comm::VM2_readCB,                    //39
+
 		&Comm::VM2_loadDefaultCalibrationCB,  //40
-		&Comm::VM_setTerminalCB,              //41                   
-		&Comm::VM_getTerminalCB,              //42                   
+		&Comm::VM_setTerminalCB,              //41
+		&Comm::VM_getTerminalCB,              //42
+
+		&Comm::changeBaudCB,                  //43
+		&Comm::recSizeCB,                     //44
+		&Comm::recDataCB,                     //45
+		&Comm::StartRecCB,                    //46
+		&Comm::StopRecCB,                     //47
 	};
 
 	if (size < sizeof (CommPacket))
@@ -240,20 +261,18 @@ void Comm::identityCB (const void* , uint16_t)
 	do_callback (new (&callbackObject_) CommCB_Identity);
 }
 
-void Comm::syncCB (const void* , uint16_t)
+void Comm::keepAliveCB (const void* data, uint16_t size)
 {
-	do_callback (new (&callbackObject_) CommCB_Sync);
 
-	/*************************/
+	if (size < sizeof (CommRequest_keepAlive))
+		return;
 
-	QP4_Packet* response =
-	    qp4_.transmitter().alloc_packet (sizeof (CommResponse_Synchronize));
+	const CommRequest_keepAlive* req =
+		reinterpret_cast <const CommRequest_keepAlive*> (data);
 
-	new (response->body()) CommResponse_Synchronize;
-	response->seal();
+	do_callback (new (&callbackObject_)
+		CommCB_keepAlive (req->leaseTime_ms()));
 
-	transmit (response);
-	qp4_.transmitter().free_packet (response);
 }
 
 void Comm::setSourceModeCB (const void* data, uint16_t size)
@@ -698,6 +717,67 @@ void Comm::VM_getTerminalCB (const void* data, uint16_t size)
 }
 
 /******************************************************************/
+
+void Comm::changeBaudCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_changeBaud))
+		return;
+
+	const CommRequest_changeBaud* req =
+		reinterpret_cast <const CommRequest_changeBaud*> (data);
+
+	do_callback (new (&callbackObject_)
+		CommCB_changeBaud (req->baudRate()));
+}
+
+/******************************************************************/
+
+void Comm::recSizeCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_recSize))
+		return;
+
+	const CommRequest_recSize* req =
+		reinterpret_cast <const CommRequest_recSize*> (data);
+
+	do_callback (new (&callbackObject_) CommCB_recSize ());
+}
+
+/******************************************************************/
+
+void Comm::recDataCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_recData))
+		return;
+
+	const CommRequest_recData* req =
+		reinterpret_cast <const CommRequest_recData*> (data);
+
+	do_callback (new (&callbackObject_)
+			CommCB_recData (req->size()));
+}
+
+/******************************************************************/
+
+void Comm::StartRecCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_StartRec))
+		return;
+
+	do_callback (new (&callbackObject_) CommCB_StartRec);
+}
+
+/******************************************************************/
+
+void Comm::StopRecCB (const void* data, uint16_t size)
+{
+	if (size < sizeof (CommRequest_StopRec))
+		return;
+
+	do_callback (new (&callbackObject_) CommCB_StopRec);
+}
+
+/******************************************************************/
 /******************************************************************/
 
 void Comm::transmitIdentity (const char* identity,
@@ -711,6 +791,30 @@ void Comm::transmitIdentity (const char* identity,
 	new (response->body())
 		CommResponse_Identity (identity,
 			hardware_version, firmware_version);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+void Comm::transmit_nop (void)
+{
+	QP4_Packet* response =
+	    qp4_.transmitter().alloc_packet (sizeof (CommResponse_nop));
+
+	new (response->body()) CommResponse_nop();
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+void Comm::transmit_keepAlive (uint32_t leaseTime_ms)
+{
+	QP4_Packet* response =
+	    qp4_.transmitter().alloc_packet (sizeof (CommResponse_keepAlive));
+
+	new (response->body()) CommResponse_keepAlive (leaseTime_ms);
 
 	response->seal();
 	transmit (response);
@@ -1313,6 +1417,90 @@ void Comm::transmit_VM_getTerminal (Comm_VM_Terminal terminal)
 
 	new (response->body())
 		CommResponse_VM_GetTerminal (terminal);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+/******************************************************************/
+
+void Comm::transmit_changeBaud (uint32_t baudRate)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_changeBaud));
+
+	new (response->body())
+		CommResponse_changeBaud (baudRate);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+/******************************************************************/
+
+void Comm::transmit_recSize (uint16_t recSize)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_recSize));
+
+	new (response->body())
+		CommResponse_recSize (recSize);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+/******************************************************************/
+
+uint16_t Comm::transmit_recData (uint16_t size, const int32_t *recData)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_recData));
+
+    uint16_t transmit_size = (size < CommResponse_recData::max_data_length) ?
+        size: CommResponse_recData::max_data_length;
+
+	new (response->body())
+		CommResponse_recData (transmit_size, recData);
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+    return transmit_size;
+}
+
+/******************************************************************/
+
+void Comm::transmit_StartRec (void)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_StartRec));
+
+	new (response->body())
+		CommResponse_StartRec;
+
+	response->seal();
+	transmit (response);
+	qp4_.transmitter().free_packet (response);
+}
+
+/******************************************************************/
+
+void Comm::transmit_StopRec (void)
+{
+	QP4_Packet* response =
+		qp4_.transmitter().alloc_packet (
+			sizeof (CommResponse_StopRec));
+
+	new (response->body())
+		CommResponse_StopRec;
 
 	response->seal();
 	transmit (response);

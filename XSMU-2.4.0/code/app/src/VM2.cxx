@@ -96,7 +96,7 @@ VM2_Range toVM2_Range (uint16_t i)
 		ranges[i] : ranges[0]);
 }
 
-VM2::VM2 (void)
+VM2::VM2 (void) : storage (Storage::get_singleton())
 {
 	setRange (VM2_RANGE_10V);
 }
@@ -107,7 +107,7 @@ void VM2::setRange (VM2_Range range)
 {
 	range_ = range;
 
-	if (storage.read (toStorage_VM2_FileNo (range), &calibration_) !=
+	if (storage->read ((uint16_t) toStorage_VM2_FileNo (range), &calibration_) !=
 		sizeof (calibration_)) {
 
 			fillDefaultCalibration (range, &calibration_);
@@ -130,7 +130,7 @@ void VM2::setCalibration (uint16_t index, float voltage)
 
 void VM2::saveCalibration (void)
 {
-	storage.write (toStorage_VM2_FileNo (range()), &calibration_);
+	storage->write (toStorage_VM2_FileNo (range()), &calibration_);
 }
 
 /*********************************************************************/

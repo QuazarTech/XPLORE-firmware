@@ -25,10 +25,12 @@ enum VS_Range
 
 VS_Range toVS_Range (uint16_t i);
 
+class Storage;
+
 class VS
 {
 public:
-	static VS& _ (void);
+	static VS* get_singleton (void);
 
 public:
 	const VS_Range& range (void) const {return range_;}
@@ -67,8 +69,8 @@ private:
 	void fillDefaultCalibration (float V_FS,
 								 VS_CalibrationTable* calibration);
 	void setDAC (int16_t dac);
+private:
+    Storage* storage;
 };
-
-#define modVS    VS::_()
 
 #endif

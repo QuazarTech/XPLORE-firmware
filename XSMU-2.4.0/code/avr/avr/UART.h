@@ -29,15 +29,19 @@ class UART_RxBuffer
 class UART
 {
 	public:
-	static UART& _ (void);
+	static UART* get_singleton (void);
 
 	public:
-	void setBaudrate (uint32_t baudrate);
+	bool isBaudValid (uint32_t bd);
+	void setBaudrate (uint32_t bd);
 	const uint32_t& baudrate (void) const {return baudrate_;}
 
 	public:
 	const UART_RxBuffer* read (void);
 	void write (const void* data, uint16_t size);
+
+	private:
+		void _setBaudrate (uint32_t baudrate);
 
 	private:
 	UART (void);
@@ -59,7 +63,5 @@ class UART
 	void isr (void);
 	static void isr (void*);
 };
-
-#define uart    UART::_()
 
 #endif

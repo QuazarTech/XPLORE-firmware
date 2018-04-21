@@ -80,7 +80,7 @@ Storage::Storage (uint16_t size, const uint16_t* file_sizes) :
 	FS (size, file_sizes)
 {}
 
-Storage& Storage::_ (void)
+Storage* Storage::get_singleton (void)
 {
 	static const uint16_t file_sizes[] PROGMEM =
 	{
@@ -111,7 +111,7 @@ Storage& Storage::_ (void)
 		sizeof (VM_CalibrationTable), // STORAGE_FILENO_VM2_CALIBRATION_10V,
 	};
 
-	static Storage o (
+	static auto o = new Storage (
 		sizeof (file_sizes) / sizeof (file_sizes[0]), file_sizes);
 
 	return o;

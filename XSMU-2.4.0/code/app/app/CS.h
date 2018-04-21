@@ -28,10 +28,12 @@ enum CS_Range
 
 CS_Range toCS_Range (uint16_t i);
 
+class Storage;
+
 class CS
 {
 public:
-	static CS& _ (void);
+	static CS* get_singleton (void);
 
 public:
 	const CS_Range& range (void) const {return range_;}
@@ -71,8 +73,8 @@ private:
 								 CS_CalibrationTable* calibration);
 
 	void setDAC (int16_t dac);
+private:
+    Storage* storage;
 };
-
-#define modCS    CS::_()
 
 #endif

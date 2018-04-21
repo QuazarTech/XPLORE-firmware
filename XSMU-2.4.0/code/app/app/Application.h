@@ -6,25 +6,41 @@
 #include "app/VS.h"
 #include "app/CM.h"
 #include "app/VM.h"
+#include "app/VM2.h"
+#include "app/RM.h"
+#include "app/LEDDisplay.h"
 #include "app/Comm.h"
 #include "sys/SysTick.h"
+#include "app/Acquisition.h"
+#include <memory>
+#include <cstdlib>
+
+class LCD;
+class SystemConfig;
+
+void* operator new (unsigned int size) { return malloc (size); }
+void operator delete (void* mem) { free (mem); }
 
 class Application : public Applet
 {
 public:
-	static Application& _ (void);
+	static Application* get_singleton (void);
 	void run (void);
 
 public:
 	virtual void check (void);
+
+public:
+	bool
+	is_online (void) const { return online_; }
+	bool
+	is_offline (void) const { return not online_; }
 
 private:
 	Application (void);
 	void show_banner (void);
 
 private:
-	bool displayFrozen_;
-	SysTick::tick_t displayResumeAt_;
 	void freezeLocalDisplay (void);
 	bool localDisplayFrozen (void);
 
@@ -34,7 +50,7 @@ private:
 
 	void nopCB                    (const CommCB* oCB);
 	void identityCB               (const CommCB* oCB);
-	void syncCB                   (const CommCB* oCB);
+	void keepAliveCB              (const CommCB* oCB);
 
 	void setSourceModeCB          (const CommCB* oCB);
 
@@ -83,9 +99,15 @@ private:
 	void VM2_readCB                (const CommCB* oCB);
 	void VM2_loadDefaultCalibrationCB (const CommCB* oCB);
 
-	void VM_setTerminalCB            (const CommCB* oCB);
-	void VM_getTerminalCB            (const CommCB* oCB);
-	
+	void VM_setTerminalCB (const CommCB* oCB);
+	void VM_getTerminalCB (const CommCB* oCB);
+
+	void changeBaudCB  (const CommCB* oCB);
+	void recSizeCB     (const CommCB* oCB);
+	void recDataCB     (const CommCB* oCB);
+	void StartRecCB    (const CommCB* oCB);
+	void StopRecCB     (const CommCB* oCB);
+
 private:
 	void CS_activate (void);
 	void CS_deactivate (void);
@@ -108,8 +130,44 @@ private:
 
 	void displayIV (bool CM_Active, float I, CM_Range IRange,
 					bool VM_Active, float V, VM_Range VRange);
-};
 
-#define app    Application::_()
+private:
+	void
+	go_online (uint32_t lease_time_ms);
+
+	void
+	go_offline (void);
+
+	void
+	check_alive (void);
+
+private:
+	bool displayFrozen_;
+	SysTick::tick_t displayResumeAt_;
+
+private:
+	bool online_;
+	SysTick::tick_t offline_at_;
+
+private:
+	std::unique_ptr<Acquisition> _acq;
+	bool _acquiring;
+
+private:
+	void displayGen (char *data1, char *data2);
+
+private:
+	LCD* lcd;
+    CS* modCS;
+    VS* modVS;
+    CM* modCM;
+	VM* modVM;
+	VM2* modVM2;
+	Comm* appComm;
+    RM* modRM;
+	SystemConfig* system_config;
+	SysTick* systick;
+	LED_Display* modLED;
+};
 
 #endif

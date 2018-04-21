@@ -99,9 +99,9 @@ uint16_t UART_RxBuffer::size (void) const
 
 /***************************************************************/
 
-UART& UART::_ (void)
+UART* UART::get_singleton (void)
 {
-	static UART o;
+	static auto o = new UART;
 	return o;
 }
 
@@ -165,7 +165,41 @@ void UART::swapRxBuffers (void)
 	resumeRxInterrupt();
 }
 
+bool UART::isBaudValid (uint32_t bd)
+{
+	switch (bd)
+	{
+		case 9600: return true;
+
+		case 19200: return true;
+
+		case 38400: return true;
+
+		case 57600: return true;
+
+		case 115200: return true;
+
+		default: return false;
+	}
+}
+
 void UART::setBaudrate (uint32_t bd)
+{
+	switch (bd)
+	{
+		case 9600: return _setBaudrate (9600);
+
+		case 19200: return _setBaudrate (19200);
+
+		case 38400: return _setBaudrate (38400);
+
+		case 57600: return _setBaudrate (57600);
+
+		case 115200: return _setBaudrate (115200);
+	}
+}
+
+void UART::_setBaudrate (uint32_t bd)
 {
 	baudrate_ = bd;
 

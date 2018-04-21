@@ -40,7 +40,7 @@ enum SPI_DataOrder
 class SPI
 {
 	public:
-	static SPI& _ (void);
+	static SPI* get_singleton (void);
 
 	public:
 	void write   (const void* data, uint16_t size);
@@ -67,7 +67,5 @@ class SPI
 	void write (char c);
 	char read (char fill);
 };
-
-#define spi    SPI::_()
 
 #endif

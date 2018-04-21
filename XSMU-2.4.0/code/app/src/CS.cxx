@@ -101,9 +101,9 @@ CS_Range toCS_Range (uint16_t i)
 
 /*********************************************************************/
 
-CS& CS::_ (void)
+CS* CS::get_singleton (void)
 {
-	static CS o;
+	static auto o = new CS;
 	return o;
 }
 
@@ -111,7 +111,8 @@ CS::CS (void) :
 	current_ (0.0),
 	range_ (CS_RANGE_1mA),
 	iox_ (IOX_ADDR),
-	active_ (false)
+	active_ (false),
+	storage (Storage::get_singleton())
 {
 	iox_.setPinDirection ((iox_.getPinDirection() & ~IOX_MASK) | IOX_DIR);
 	iox_.setPinPolarity  ((iox_.getPinPolarity() & ~IOX_MASK)  | IOX_POLARITY);
@@ -143,7 +144,7 @@ void CS::setRange (CS_Range range)
 {
 	range_ = range;
 
-	if (storage.read (toStorage_CS_FileNo (range), &calibration_) !=
+	if (storage->read (toStorage_CS_FileNo (range), &calibration_) !=
 		sizeof (calibration_)) {
 
 			fillDefaultCalibration (range, &calibration_);
@@ -239,7 +240,7 @@ void CS::setCalibration (uint16_t index, float current)
 
 void CS::saveCalibration (void)
 {
-	storage.write (toStorage_CS_FileNo (range()), &calibration_);
+	storage->write (toStorage_CS_FileNo (range()), &calibration_);
 }
 
 /*********************************************************************/

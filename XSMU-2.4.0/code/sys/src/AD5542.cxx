@@ -20,12 +20,12 @@ void AD5542::write (uint16_t value)
 {
 	value_ = value;
 
-	spi.enable (spiConfig_);
+	spi->enable (spiConfig_);
 	selectLow();
 
 	value = hton (value);
-	spi.write (&value, sizeof (value));
+	spi->write (&value, sizeof (value));
 
 	selectHigh();
-	spi.reset();
+	spi->reset();
 }

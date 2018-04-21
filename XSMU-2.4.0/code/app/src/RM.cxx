@@ -1,8 +1,8 @@
 #include "app/RM.h"
 
-#include "app/CS.h"
-#include "app/CM.h"
-#include "app/VM.h"
+// #include "app/CS.h"
+// #include "app/CM.h"
+// #include "app/VM.h"
 
 #include "sys/hardware.h"
 #include <util/delay.h>
@@ -34,9 +34,9 @@ RM::RM (void) :
 	range_ (RM_RANGE_10k)
 {}
 
-RM& RM::_ (void)
+RM* RM::get_singleton (void)
 {
-	static RM o;
+	static auto o = new RM;
 	return o;
 }
 
@@ -88,13 +88,13 @@ int8_t RM::range_ok (RM_Range range, uint16_t filterLength)
 		{ CS_RANGE_100uA, CM_RANGE_100uA, VM_RANGE_10V,     1e-6, 10.0   },
 	};
 
-	modCS.setRange   (pgm_read (rangeSettings[range].cs_range));
-	modCM.setRange   (pgm_read (rangeSettings[range].cm_range));
-	modVM.setRange   (pgm_read (rangeSettings[range].vm_range));
-	modCS.setCurrent (pgm_read (rangeSettings[range].current));
+	modCS->setRange   (pgm_read (rangeSettings[range].cs_range));
+	modCM->setRange   (pgm_read (rangeSettings[range].cm_range));
+	modVM->setRange   (pgm_read (rangeSettings[range].vm_range));
+	modCS->setCurrent (pgm_read (rangeSettings[range].current));
 	_delay_ms (100);
 
-	const float V = fabs (modVM.readVoltage (filterLength));
+	const float V = fabs (modVM->readVoltage (filterLength));
 
 	if (V > pgm_read (rangeSettings[range].VMax))
 		return +1;
@@ -129,21 +129,21 @@ float RM::readResistance (RM_Range range, uint16_t filterLength)
 		{ CS_RANGE_100uA, CM_RANGE_100uA, VM_RANGE_10V,     1e-6 },
 	};
 
-	modCS.setRange   (pgm_read (rangeSettings[range].cs_range));
-	modCM.setRange   (pgm_read (rangeSettings[range].cm_range));
-	modVM.setRange   (pgm_read (rangeSettings[range].vm_range));
+	modCS->setRange   (pgm_read (rangeSettings[range].cs_range));
+	modCM->setRange   (pgm_read (rangeSettings[range].cm_range));
+	modVM->setRange   (pgm_read (rangeSettings[range].vm_range));
 
-	modCS.setCurrent (pgm_read (rangeSettings[range].current));
+	modCS->setCurrent (pgm_read (rangeSettings[range].current));
 	_delay_ms (100);
 
-	const float Ipos = modCM.readCurrent (filterLength);
-	const float Vpos = modVM.readVoltage (filterLength);
+	const float Ipos = modCM->readCurrent (filterLength);
+	const float Vpos = modVM->readVoltage (filterLength);
 
-	modCS.setCurrent (-pgm_read (rangeSettings[range].current));
+	modCS->setCurrent (-pgm_read (rangeSettings[range].current));
 	_delay_ms (100);
 
-	const float Ineg = modCM.readCurrent (filterLength);
-	const float Vneg = modVM.readVoltage (filterLength);
+	const float Ineg = modCM->readCurrent (filterLength);
+	const float Vneg = modVM->readVoltage (filterLength);
 
 	return fabs (Vpos - Vneg) / fabs (Ipos - Ineg);
 }
